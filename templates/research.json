@@ -1,0 +1,14 @@
+{
+  "kind": "predicted_question",
+  "title": "PRACTICE QUESTION",
+  "content": "WHY THIS QUESTION IS RELEVANT",
+  "url": "",
+  "source_name": "",
+  "source_date": "",
+  "role_context": "",
+  "answer_outline": "OUTLINE GROUNDED IN SAVED EXPERIENCE",
+  "experience_ids": [
+    "experience_REPLACE"
+  ]
+}
+

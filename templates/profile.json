@@ -1,0 +1,16 @@
+{
+  "name": "YOUR NAME",
+  "headline": "YOUR HEADLINE",
+  "location": "YOUR LOCATION",
+  "summary": "SUPPORTED PROFESSIONAL SUMMARY",
+  "skills": [],
+  "education": [],
+  "preferences": {
+    "roles": [],
+    "locations": [],
+    "work_style": "",
+    "salary": "",
+    "priorities": []
+  }
+}
+

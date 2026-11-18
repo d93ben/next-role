@@ -1,0 +1,20 @@
+{
+  "headline": "SUPPORTED HEADLINE",
+  "summary": "SUPPORTED SUMMARY",
+  "skills": [],
+  "tailoring_notes": "WHAT WAS EMPHASIZED OR OMITTED",
+  "experiences": [
+    {
+      "experience_id": "experience_REPLACE",
+      "bullets": [
+        {
+          "text": "TAILORED BUT ACCURATE BULLET",
+          "fact_ids": [
+            "fact_REPLACE"
+          ]
+        }
+      ]
+    }
+  ]
+}
+

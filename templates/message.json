@@ -1,0 +1,12 @@
+{
+  "direction": "inbound",
+  "subject": "ACTUAL SUBJECT",
+  "contact": "ACTUAL CONTACT",
+  "body": "MESSAGE TEXT",
+  "source": "Pasted by user / connected email / etc.",
+  "external_id": "",
+  "at": "",
+  "next_action": "",
+  "due_date": ""
+}
+

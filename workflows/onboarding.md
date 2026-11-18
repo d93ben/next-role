@@ -1,0 +1,12 @@
+# Guided onboarding
+
+1. Read status, the index, existing profile, unanswered questions, recent answers, and unprocessed brain-dump notes. Extract supported experience using each note ID as a source; then use `brain-dump update` to link the resulting records. Preserve original wording and ask about ambiguous claims. Do not restart onboarding every chat.
+2. Run `intake` to index input files. Read the actual source material using available tools. TXT/MD/CSV/JSON text is indexed automatically; PDF/DOCX/images require the host's document reader or another available extraction tool. For these, save extracted text with `intake extract`, the source ID, and the real extraction method. If unavailable, ask for pasted text or a readable export; never claim an unread file was processed.
+3. Establish target roles, location/work style, compensation preferences, and priorities. If the user is unsure, explore what work they enjoy and propose role families as possibilities rather than deciding for them.
+4. Ask one to three targeted questions. Start with a recent role or project and a typical week. Follow with a concrete problem, what they personally did, who used the result, and what changed. Paid work, volunteering, school projects, caregiving logistics, and independent work may be relevant; label the context accurately.
+5. Save each answer with `answer add`. Use the user's words. Distinguish facts from your interpretation. Save uncertainty as `question add`; let the user defer a question with `question update`.
+6. Use `profile set` for preferences, contact details, skills supported by the user's account, and education. Use `experience add` for role/project details and accomplishments with source IDs. Dates and credentials must come from the person or their material. Avoid inventing numbers. A qualitative result is useful.
+7. If records disagree, ask about the discrepancy. Corrections become a new answer referencing `supersedes`. Update the affected experience while keeping unchanged fact IDs and preserving submitted archives.
+8. Give the user a brief profile summary to correct. Save meaningful progress even if the profile is incomplete. Save a concise handoff with `memory set`, validate, rebuild, and link the dashboard.
+
+Native user-question dialogs are optional. Normal chat works across hosts. If the person steps away, record pending questions and continue only work that does not depend on their answers. A later session should read and resume those questions.

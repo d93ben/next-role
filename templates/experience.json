@@ -1,0 +1,19 @@
+{
+  "company": "EMPLOYER OR PROJECT",
+  "title": "ACTUAL ROLE",
+  "period": "ACTUAL DATES",
+  "context": "WORK CONTEXT",
+  "source_refs": [
+    "answer_REPLACE"
+  ],
+  "accomplishments": [
+    {
+      "text": "SUPPORTED ACCOMPLISHMENT",
+      "source_refs": [
+        "answer_REPLACE"
+      ],
+      "evidence_type": "user_reported"
+    }
+  ]
+}
+
