@@ -26,7 +26,7 @@ Your assistant recommends roles and a starting search area from your materials a
 - A separate record for every opportunity, including a saved listing, fit explanation, gaps, notes, next actions, dates, and activity history.
 - A finished, editable Word resume for the selected role, plus printable HTML, plain text and an evidence snapshot. The assistant explains significant edits in chat using original wording, tailored wording and the reason for the change. Preparing a role also includes starter interview questions and answer outlines.
 - Import existing PDF, DOCX, HTML, Markdown, or text application documents; archive the exact submitted resume and selected attachments.
-- Distinct company research, reported interview questions, predicted questions, and experience-based answer outlines.
+- An interview coach in your assistant chat that researches employer guides and candidate reports, builds answers from your experience, and runs one-question-at-a-time mock interviews with feedback. Try “Research questions for [role] at [company] and coach me through a mock interview.”
 - Correspondence records and unsent reply drafts, supplied through the assistant's email tools or pasted messages.
 - AGENTS.md operating rules, a MEMORY.md navigation guide, generated workspace indexes, a short session handoff, guided workflows, validation, backups, and a fictional demo.
 

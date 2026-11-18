@@ -22,7 +22,9 @@ Try saying:
 - “Add this job to my shortlist: [paste the listing or URL].”
 - “Prepare a resume for the Canopy role.”
 - “I submitted that resume today. Record the application.”
-- “Help me practice for my interview using my own experience.”
+- "Research interview questions for [role] at [company]. My next round is [stage]."
+- "Coach my answer to this question: [question and answer]."
+- "Run a mock interview for [role]. Ask one question at a time and give feedback after I answer."
 - “Here is a recruiter email. Save it to the right application and help me draft a reply.”
 
 ## For the assistant
