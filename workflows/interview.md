@@ -1,10 +1,12 @@
 # Prepare for an interview
 
-1. Read the exact listing and the submitted resume's archived JSON or actual imported document. Check which examples the candidate presented. Use current profile facts for additional examples while noting any changed details.
+Start this workflow as part of preparing a role the user has said they want to pursue, including before submission or an interview invitation. A starter packet includes relevant employer context when available, three role-specific practice questions with evidence-backed answer outlines where possible, and a question the candidate can ask the interviewer. Adapt the depth to the user's request.
+
+1. Read the exact listing and any research already saved for this role. After submission, use the actual submitted resume or its archived snapshot. Before submission, use the latest tailored resume. If the user requests interview prep on its own, the listing and saved experience are enough to begin. Reuse current preparation and fill gaps when resuming.
 2. Research the employer, team, product/service, role, and publicly accessible interview reports using available tools. Verify current company facts against primary sources when possible. Sources such as Glassdoor and forums may be useful but may be inaccessible or anecdotal.
 3. Save company research with `research add`, kind `company`, source URL, source name, and role context. A checked date is recorded automatically. Include publication date when known.
 4. Save interview reports as `reported_question` only when you actually read the report. Capture whether the report matches the role, location, team, seniority, and interview stage. Summarize rather than copying entire reports. Explain mismatch or age where relevant. Never label a predicted question as a company report.
 5. Save your inferred practice questions as `predicted_question`. Explain the listing requirement that motivated each one. This path still works without browsing.
 6. Map questions to saved experience IDs. Draft answer outlines using situation, personal action, and supported result. Preserve uncertainty and use qualitative results when metrics aren't known. No invented stories.
 7. Offer an interactive practice round in chat: ask one question, let the user answer, give specific feedback, and help refine it. Save new factual details as answers/experience updates and useful preparation as research records.
-8. Validate, rebuild, and point to Interview prep. Record any research access limitations and next preparation step.
+8. Validate and rebuild. In chat, give the user the practice questions, a concise answer outline for the strongest example, and one informed question to ask the interviewer. Identify which prompts are predicted or reported and cite any reports used. Link to the saved prep when possible and end with the next practice action.

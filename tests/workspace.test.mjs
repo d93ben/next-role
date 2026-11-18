@@ -56,14 +56,47 @@ test('invalid states and invented resume source IDs are rejected',t=>{
 });
 test('resume to submission to interview works and submitted bytes remain frozen',t=>{
   const {root,job,payload,experience}=fixture(t);const doc=resume(root,job.id,payload);
-  assert.equal(doc.files.length,3);mutate(root,'job update',{status:'ready'},job.id);
+  assert.deepEqual(doc.files.map(f => f.format), ['docx', 'html', 'txt', 'json']);
+  mutate(root,'job update',{status:'ready'},job.id);
   mutate(root,'submission record',{resume_id:doc.id,evidence_type:'user_reported',evidence:'I submitted this version today.'},job.id);
   mutate(root,'job update',{status:'interview'},job.id);
   const submitted=load(root).jobs[0].submission;const archived=inside(root,submitted.files[0].path);const bytes=fs.readFileSync(archived);
+  assert.deepEqual(submitted.files.map(f => f.format), ['docx']);
   mutate(root,'experience update',{...experience,accomplishments:[{...experience.accomplishments[0],text:'Updated current wording.'}]});
   resume(root,job.id,payload);assert.deepEqual(fs.readFileSync(archived),bytes);assert.equal(validate(root).ok,true);
   assert.throws(()=>mutate(root,'submission record',{resume_id:doc.id,evidence_type:'user_reported',evidence:'Again'},job.id),/already recorded/);
   fs.appendFileSync(archived,'tampered');assert.throws(()=>validate(root),/submitted document was changed/);
+});
+test('Word output uses supported public wording and keeps the source comparison in the snapshot', t => {
+  const {root, job, payload, answer} = fixture(t);
+  const bullet = payload.experiences[0].bullets[0];
+  bullet.text = 'Built a tracker for planning & coordination.';
+  bullet.rationale = 'Emphasizes the role’s coordination requirement.';
+  bullet.source_excerpt = {source_id: answer.id, quote: 'invented quotation'};
+  assert.throws(() => resume(root, job.id, payload), /source excerpt/);
+  bullet.source_excerpt.quote = 'a shared tracker used by three supervisors';
+  const doc = resume(root, job.id, payload);
+  const file = format => inside(root, doc.files.find(f => f.format === format).path);
+  const snapshot = readJSON(file('json'));
+  assert.deepEqual(snapshot.experiences[0].bullets[0], bullet);
+  const zip = fs.readFileSync(file('docx'));
+  const parts = new Map();
+  let offset = 0;
+  while (zip.readUInt32LE(offset) === 0x04034b50) {
+    const size = zip.readUInt32LE(offset + 18);
+    const nameEnd = offset + 30 + zip.readUInt16LE(offset + 26);
+    const start = nameEnd + zip.readUInt16LE(offset + 28);
+    const name = zip.subarray(offset + 30, nameEnd).toString();
+    parts.set(name, inflateRawSync(zip.subarray(start, start + size)).toString());
+    offset = start + size;
+  }
+  assert.ok(parts.has('word/styles.xml'));
+  const xml = parts.get('word/document.xml');
+  assert.match(xml, /Jamie Example/);
+  assert.match(xml, /Built a tracker for planning &amp; coordination\./);
+  assert.doesNotMatch(xml, /three supervisors|Emphasizes|Prioritized coordination/);
+  mutate(root, 'submission record', {resume_id: doc.id, resume_format: 'txt', evidence_type: 'user_reported', evidence: 'Text file uploaded.'}, job.id);
+  assert.deepEqual(load(root).jobs[0].submission.files.map(f => f.format), ['txt']);
 });
 test('actual imported resume and cover-letter bytes are archived',t=>{
   const {root,job}=fixture(t);const source=path.join(root,'input','actual.pdf');fs.writeFileSync(source,'Exact test PDF bytes');

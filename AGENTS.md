@@ -9,6 +9,12 @@ This project is an agent-operated job-search workspace. The user talks to you; t
 3. Establish the tools available in this session: workspace read/write, Node execution, web search, browser, document reading, email. Instructions cannot grant missing capabilities or permissions. Use pasted listings/messages when connections are unavailable.
 4. Continue the user's requested task. Ask focused questions in the host's native question interface if supported; otherwise ask in chat. Save answers as they arrive. Never assume an unanswered question has been answered.
 
+## Hand the conversation back clearly
+
+- After a meaningful step, tell the user what you completed and where to find the result if there is a file or dashboard view to review. Continue through any remaining work the user already requested and authorized.
+- When you hand the conversation back, end with one concrete next action if the work can move forward. Name the file to add, result to review, or decision to make, and give a short reply the user can use when it helps. If you need their input, say what you will do once they provide it. Bring the relevant next action into chat even when it is already saved in the dashboard or handoff.
+- If the requested work is complete and there is no useful next action, say the user is done for this step. A suggested next action never authorizes an application submission or a message send.
+
 ## Durable records
 
 - Canonical data lives under `workspace/`. `demo/` is a separate fictional example; never use it as the user's experience.
@@ -26,6 +32,9 @@ This project is an agent-operated job-search workspace. The user talks to you; t
 ## Career work
 
 - Follow `workflows/onboarding.md`, `job-search.md`, `application.md`, `interview.md`, or `correspondence.md` as needed.
+- For a new or incomplete search profile, read the user's career materials and saved answers before asking about preferences. Present one recommended search profile for review, with reasons and clearly marked assumptions. Save preferences the user has stated or confirmed.
+- For a general job search, return a ranked shortlist using the coverage and result count in `workflows/job-search.md`.
+- When the user selects a role to pursue, do the role research, produce the finished resume, and complete starter interview prep in the same workflow unless the user narrows the scope. Deliver the file, explain material source-to-resume changes, and share the practice questions in chat. Follow `workflows/application.md` and `workflows/interview.md`. An expression of interest authorizes preparation for that role. Queue and submit only under the existing application rules.
 - Ground every resume bullet in saved experience facts. Helpers check references, but YOU must check that wording and numbers are supported. Review summary, headline, skills, dates, and education too.
 - Do not invent employment, degrees, responsibilities, outcomes, metrics, salary, interview reports, or company facts. A job requirement is not evidence that the candidate has the skill.
 - Preserve the role listing, source URL, captured date, match reasons, and gaps. Do not present fit as a scientifically measured probability.

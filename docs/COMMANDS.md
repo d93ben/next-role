@@ -60,11 +60,13 @@ node scripts/career.mjs document add --id job_… --file workspace/document.json
 node scripts/career.mjs submission record --id job_… --file workspace/submission.json
 ```
 
-**resume create:** optional supported headline/summary; selected skills (must exist in profile); tailoring_notes; experiences array. Each experience references `experience_id`, and contains bullets with `text` and `fact_ids` from that experience. A name and at least one experience/bullet are required. The command returns the new document ID and files. It writes HTML (printable/save as PDF), plain text, and a JSON snapshot of the candidate profile and supporting experience. It does not create a PDF automatically. Each call makes a new draft; prior versions remain available.
+**resume create** generates an editable DOCX using `templates/resume-styles.xml`, printable HTML, plain text and an evidence snapshot. Supply the supported headline, summary, existing skills, tailoring notes and experiences to include. Each experience references an `experience_id` and includes bullets with `text` and supporting `fact_ids`. A bullet may also include a `rationale` and a `source_excerpt` object containing a `source_id` and an exact `quote` from a linked input, answer or career note. These fields appear in the evidence snapshot for the agent's chat explanation. Each call creates a new version. The result identifies the DOCX as the primary format.
 
 **document add:** `kind` is resume, cover_letter, or other; `source_path` is an existing file; `title`; optional `tailoring_notes`. Supports PDF/DOCX/TXT/MD/HTML. Copies the exact file into the job's documents folder. Used for externally prepared documents, exported PDFs, and applications submitted before starting this workspace. Import only trusted documents; HTML documents may contain active content.
 
 **submission record:** `resume_id`, optional `attachment_ids` (document IDs for cover letters or other attachments), `evidence_type` (`user_reported` or `observed_confirmation`), nonempty `evidence`, optional ISO date/time `at`, next_action, next_action_date. Copies the selected files into a unique submitted archive, computes SHA-256 hashes, records evidence, and marks applied. It never sends an application. A second submission record is rejected to protect the original archive. If a reapplication is a genuinely distinct attempt, create a new opportunity with a distinct listing identity and note its relationship to the prior attempt.
+
+For a generated resume, `submission record` archives the primary DOCX by default. Set `resume_format` to the actual format used if it was a different generated file. For an externally exported or edited file, import the exact bytes with `document add` and use its ID. Older records without a primary format retain their historical archive behavior unless a format is specified.
 
 ## Research and correspondence
 

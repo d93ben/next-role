@@ -14,9 +14,9 @@ Download and extract the release ZIP, then open the folder in an AI assistant wi
 
 Add career material to `workspace/input`. Tell your assistant:
 
-> Read START-HERE.md and help me start my job search.
+> Read START-HERE.md, review the materials in workspace/input, and suggest a job search profile I can confirm or edit.
 
-You do not need an existing resume. The onboarding workflow can help you describe your experience through conversation.
+Your assistant recommends roles and a starting search area from your materials and highlights assumptions about work arrangement, pay, and priorities. Review the suggestions together and change anything that feels off. A few career notes or a description of a recent project are enough to get started.
 
 ## What is included
 
@@ -24,7 +24,7 @@ You do not need an existing resume. The onboarding workflow can help you describ
 - A career profile with a brain dump that saves original notes for the agent to organize.
 - Original answers, source-backed career facts, preferences, open questions, and indexed input files.
 - A separate record for every opportunity, including a saved listing, fit explanation, gaps, notes, next actions, dates, and activity history.
-- Tailored resume generation in printable HTML and plain text, with a JSON source/evidence snapshot. Open the HTML and choose **Print / save as PDF**. A PDF is created only when you complete that print flow.
+- A finished, editable Word resume for the selected role, plus printable HTML, plain text and an evidence snapshot. The assistant explains significant edits in chat using original wording, tailored wording and the reason for the change. Preparing a role also includes starter interview questions and answer outlines.
 - Import existing PDF, DOCX, HTML, Markdown, or text application documents; archive the exact submitted resume and selected attachments.
 - Distinct company research, reported interview questions, predicted questions, and experience-based answer outlines.
 - Correspondence records and unsent reply drafts, supplied through the assistant's email tools or pasted messages.

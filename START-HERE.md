@@ -2,7 +2,7 @@
 
 Open this folder in an AI assistant with permission to read and write project files. Tell it:
 
-> Read START-HERE.md and help me start my job search. Use what is already in my input folder, and interview me about anything important that is missing.
+> Read START-HERE.md and help me start my job search. Review the materials in workspace/input and suggest a search profile I can confirm or edit.
 
 You can start with an old resume, a few notes, or nothing at all.
 
@@ -29,7 +29,9 @@ Try saying:
 
 Read `AGENTS.md`, `MEMORY.md`, and the generated `workspace/INDEX.md`, then run `node scripts/career.mjs status`. Initialize only if needed. Read the relevant workflow and use the saved records before asking questions already answered. Never replace the user's workspace with demo data.
 
-If no profile exists, follow `workflows/onboarding.md`. Ask one to three useful questions at a time. Save exact responses with `answer add` before extracting claims into experience records. Use source IDs returned by the helpers. A short, accurate profile is enough to begin; improve it when a role reveals a useful gap.
+When you finish setup and need career materials, tell the user exactly what to do next. For example, "Add your resume, LinkedIn export, or work samples to `workspace/input`, then reply 'files are ready' and I'll review them." If materials are already there, review them and continue onboarding.
+
+For a new or incomplete search profile, follow `workflows/onboarding.md`. Review the available materials, then show one suggested plan covering roles, search area, work arrangement, compensation, and priorities. Ask the user to confirm or edit the plan. Ask a focused follow-up only when missing information materially affects the search or is needed to support an experience claim. Save exact responses with `answer add` before updating records, and use the source IDs returned by the helpers.
 
 If you cannot read files or run Node, explain the missing capability and help the user open the project in a capable host. Do not claim that state was saved when it was only written in chat. If only a particular tool is missing (web/email/document reading), continue with available tools and ask for pasted content as needed.
 

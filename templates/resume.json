@@ -9,6 +9,7 @@
       "bullets": [
         {
           "text": "TAILORED BUT ACCURATE BULLET",
+          "rationale": "JOB REQUIREMENT AND REASON FOR THIS EDIT",
           "fact_ids": [
             "fact_REPLACE"
           ]

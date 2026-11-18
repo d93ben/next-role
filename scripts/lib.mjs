@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { renderResumeDocx } from './resume-docx.mjs';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const APP_VERSION = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version;
@@ -217,7 +218,10 @@ export function mutate(root, command, payload = {}, jobId = '') {
     const submitted = { id: id('submission'), at: date(payload.at, 'at') || now(), evidence, evidence_type: payload.evidence_type, resume_id: selected.id, files: [] };
     const attachments = strings(payload.attachment_ids, 'attachment_ids').map(ref => { const d = job.documents.find(d => d.id === ref); required(d && d.id !== selected.id, 'Unknown or repeated attachment ID.'); return d; });
     required(new Set(attachments.map(d => d.id)).size === attachments.length, 'Attachment IDs must be unique.');
-    const toArchive = [selected, ...attachments].flatMap(d => d.files.map(f => ({ ...f, document_kind: d.kind, document_title: d.title })));
+    const resumeFormat = payload.resume_format ?? selected.primary_format;
+    const resumeFiles = resumeFormat ? selected.files.filter(f => f.format === resumeFormat) : selected.files;
+    required(resumeFiles.length > 0 && resumeFormat !== 'json', 'Choose an available employer-facing resume format.');
+    const toArchive = [{ ...selected, files: resumeFiles }, ...attachments].flatMap(d => d.files.map(f => ({ ...f, document_kind: d.kind, document_title: d.title })));
     for (const file of toArchive) required(fs.existsSync(inside(root, file.path)), 'A submission document is missing.');
     for (const file of toArchive) {
       const src = inside(root, file.path); required(fs.existsSync(src), 'Resume file is missing.');
@@ -261,7 +265,19 @@ export function resume(root, jobId, payload) {
     const experience = state.experiences.find(e => e.id === section.experience_id); required(experience, 'Resume refers to an unknown experience.');
     const bullets = list(section.bullets, 'bullets').map(b => {
       const refs = strings(b.fact_ids, 'fact_ids'); required(refs.length > 0 && refs.every(ref => experience.accomplishments.some(a => a.id === ref)), 'Every resume bullet must reference a fact from that experience.');
-      return { text: text(b.text, 'bullet text'), fact_ids: refs };
+      const bullet = { text: text(b.text, 'bullet text'), fact_ids: refs };
+      if (b.rationale) bullet.rationale = text(b.rationale, 'rationale');
+      if (b.source_excerpt) {
+        const { source_id, quote } = b.source_excerpt;
+        const cited = experience.accomplishments.some(f => refs.includes(f.id) && f.source_refs.includes(source_id));
+        const original = state.intake.find(s => s.id === source_id)?.text
+          ?? state.answers.find(s => s.id === source_id)?.response
+          ?? state.brain_dump.find(s => s.id === source_id)?.text;
+        const excerpt = text(quote, 'source excerpt');
+        required(cited && original?.includes(excerpt), 'The source excerpt must match the original text of a source for this bullet.');
+        bullet.source_excerpt = { source_id, quote: excerpt };
+      }
+      return bullet;
     }); required(bullets.length > 0, 'Each experience needs at least one bullet.');
     return { ...experience, bullets };
   });
@@ -272,10 +288,11 @@ export function resume(root, jobId, payload) {
   const lines = [p.name, snapshot.headline, contact, '', snapshot.summary, '', 'EXPERIENCE', ...sections.flatMap(e => [`${e.title} | ${e.company}`, e.period, ...e.bullets.map(b => `• ${b.text}`), '']), ...(skills.length ? ['SKILLS', skills.join(' · '), ''] : []), ...(p.education.length ? ['EDUCATION', ...p.education.map(e => `${e.qualification} | ${e.institution} | ${e.date}`)] : [])];
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escapeHTML(p.name)} — Resume</title><style>body{margin:0;background:#eef0ec;color:#182620;font:11pt/1.5 Arial,sans-serif}.toolbar{padding:18px;text-align:center;font-size:14px}.toolbar button{background:#214c3d;color:white;border:0;border-radius:6px;padding:12px 20px;cursor:pointer}.page{background:white;max-width:760px;margin:0 auto 40px;padding:52px 60px;box-shadow:0 2px 20px #0001}h1{font-size:28pt;margin:0;letter-spacing:-1px}h2{font-size:11pt;letter-spacing:1px;border-bottom:1px solid #aab8ae;padding-bottom:6px;margin-top:25px}h3{font-size:11pt;margin:18px 0 0}.contact,.period{font-size:10pt;color:#49594e}.headline{font-size:13pt;margin:4px 0 10px}ul{padding-left:20px}li{margin:4px 0}section{break-inside:avoid}@page{size:letter;margin:0.65in}@media print{body{background:white}.toolbar{display:none}.page{padding:0;margin:0;box-shadow:none;max-width:none}a{color:inherit}}@media(max-width:600px){.page{padding:28px}}</style></head><body><div class="toolbar"><button onclick="window.print()">Print / save as PDF</button><p>Review this draft before submitting. In the print dialog, turn off browser headers and footers.</p></div><main class="page"><h1>${escapeHTML(p.name)}</h1><p class="headline">${escapeHTML(snapshot.headline)}</p><p class="contact">${escapeHTML(contact)}</p>${snapshot.summary ? `<p>${escapeHTML(snapshot.summary)}</p>` : ''}<h2>EXPERIENCE</h2>${sections.map(e => `<section><h3>${escapeHTML(e.title)} · ${escapeHTML(e.company)}</h3><div class="period">${escapeHTML(e.period)}</div><ul>${e.bullets.map(b => `<li>${escapeHTML(b.text)}</li>`).join('')}</ul></section>`).join('')}${skills.length ? `<h2>SKILLS</h2><p>${escapeHTML(skills.join(' · '))}</p>` : ''}${p.education.length ? `<h2>EDUCATION</h2>${p.education.map(e => `<p><strong>${escapeHTML(e.qualification)}</strong><br>${escapeHTML(e.institution)} · ${escapeHTML(e.date)}</p>`).join('')}` : ''}</main></body></html>`;
   const files = [];
-  for (const [format, content] of [['html', html], ['txt', lines.join('\n')], ['json', JSON.stringify(snapshot, null, 2)]]) {
+  for (const [format, content] of [['docx', renderResumeDocx(snapshot)], ['html', html], ['txt', lines.join('\n')], ['json', JSON.stringify(snapshot, null, 2)]]) {
     const rel = `applications/${job.id}/documents/${docId}.${format}`; atomic(inside(root, rel), content); files.push({ path: rel, format });
   }
   const doc = { id: docId, kind: 'resume', title: `${job.company} · tailored resume`, created_at: now(), tailoring_notes: snapshot.tailoring_notes, files, source_fact_ids: sections.flatMap(e => e.bullets.flatMap(b => b.fact_ids)) };
+  doc.primary_format = 'docx';
   job.documents.push(doc); if (['saved', 'queued'].includes(job.status)) job.status = 'preparing'; saveJob(root, job, 'Resume draft created', snapshot.tailoring_notes); return doc;
 }
 export function validate(root) {
