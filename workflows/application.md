@@ -1,7 +1,7 @@
 # Prepare and track an application
 
 1. Identify the exact saved job. If the user asks to apply to an unsaved job, first read/save its listing, then set `queued` with their request. “Prepare” authorizes preparation; it does not by itself authorize submission.
-2. Read the saved listing, current profile, relevant experience facts, and previous documents. Match requirements to facts, not keywords alone. Ask focused questions when an important claim is missing. Save answers before using them.
+2. Read the saved listing, current profile, relevant experience facts, and previous documents. Match requirements to facts, not keywords alone. If the role has no evidence assessment or new information changes the match, follow the rubric in `job-search.md` and save the computed assessment when the evidence is sufficient. Ask focused questions when an important claim is missing. Save answers before using them.
 3. Use this drafting brief for the exact role and employer.
 
    > Draft a resume for this job using the posting and the candidate's saved experience. Identify the most important requirements and lead with the candidate's strongest supported examples. Use the employer's terms where they accurately describe the candidate's work. Write concise bullets that show the candidate's action and the result where known. Keep job titles, employers, dates, and metrics accurate. Read the top third as a recruiter on a first pass and check whether the candidate's strongest qualifications are easy to find. Put material gaps in the review notes.

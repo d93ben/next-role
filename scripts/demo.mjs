@@ -16,6 +16,36 @@ export function createDemo(root) {
     const answer = mutate(root,'answer add',{question:'Tell me about a process you improved.',response:'At Northstar I built a shared spreadsheet to track 24 contractors and their availability. Three team leads used it for weekly staffing. I also trained four new hires and wrote a quick reference guide. I don’t have a measured time-savings figure.'});
     const exp = mutate(root,'experience add',{company:'Northstar Studio',title:'Operations Coordinator',period:'2022–2026',context:'Supported staffing, onboarding, and operational coordination for a growing studio.',source_refs:[sources[0].id,answer.id],accomplishments:[{text:'Built a shared availability tracker for 24 contractors, used by three team leads for weekly staffing.',source_refs:[answer.id]},{text:'Trained four new hires on the inventory system and created a quick reference guide.',source_refs:[sources[0].id],evidence_type:'documented'}]});
     const exp2 = mutate(root,'experience add',{company:'Fieldwork Collective',title:'Project Assistant',period:'2020–2022',context:'Kept project schedules and communications organized across a small program team.',source_refs:[sources[0].id],accomplishments:[{text:'Coordinated schedules and vendor communications across six concurrent projects.',evidence_type:'documented'},{text:'Prepared weekly status summaries for the program manager.',evidence_type:'documented'}]});
+    const [staffing, onboarding] = exp.accomplishments;
+    const [scheduling, updates] = exp2.accomplishments;
+    const rate = (status, reason, ...facts) => ({status, reason, evidence_refs: facts.map(fact => fact.id)});
+    const fitExamples = [
+      [
+        rate('direct', 'Coordinated weekly staffing and schedules across six projects.', staffing, scheduling),
+        rate('direct', 'Supported staffing decisions for three team leads.', staffing),
+        rate('direct', 'Created a quick reference guide for new hires.', onboarding)
+      ],
+      [
+        rate('direct', 'Built a spreadsheet to track availability for 24 contractors.', staffing),
+        rate('direct', 'Supported staffing operations with three team leads.', staffing),
+        rate('partial', 'Introduced a shared tracker. The operational improvement was not measured.', staffing)
+      ],
+      [
+        rate('unknown', 'Event planning experience is unverified.'),
+        rate('partial', 'Vendor communication is transferable to member support.', scheduling),
+        rate('direct', 'Built a shared staffing tracker for three team leads.', staffing)
+      ],
+      [
+        rate('direct', 'Tracked schedules and vendor communications across six projects.', scheduling),
+        rate('direct', 'Prepared weekly status summaries for the program manager.', updates),
+        rate('direct', 'Created a quick reference guide and weekly project summaries.', onboarding, updates)
+      ],
+      [
+        rate('direct', 'Trained four new hires on the inventory system.', onboarding),
+        rate('partial', 'Maintained staffing details for 24 contractors.', staffing),
+        rate('direct', 'Trained new employees and created a guide they could use.', onboarding)
+      ]
+    ];
     mutate(root,'question add',{question:'What kind of team helps you do your best work?',why:'This helps your assistant assess culture fit beyond a job title.'});
     mutate(root,'question add',{question:'Have you managed a project budget?',why:'Several program roles ask for budget tracking. A small example can still be relevant.'});
     const definitions = [
@@ -25,7 +55,7 @@ export function createDemo(root) {
       {company:'Linear Works',title:'Project Coordinator',location:'United States',work_style:'Remote',salary:'$80,000–$95,000',status:'saved',next_action:'Explore fit with your assistant',next_action_date:'',summary:'A project coordination opportunity worth a closer look.',requirements:['Project tracking','Stakeholder updates','Documentation'],matches:['Prepared weekly project summaries.','Managed schedules across concurrent projects.'],gaps:['Confirm comfort working across time zones.']},
       {company:'Sunday',title:'People Operations Associate',location:'Portland, OR',work_style:'Hybrid',salary:'$70,000–$80,000',status:'saved',next_action:'Compare the role with your priorities',next_action_date:'',summary:'A potential move toward employee experience and onboarding.',requirements:['Onboarding','Attention to detail','Employee communication'],matches:['Trained four new hires and created a reference guide.'],gaps:['HR information system experience is not yet documented.']}
     ];
-    const jobs = definitions.map((j,i)=>mutate(root,'job add',{...j,url:`https://example.com/demo-jobs/${i+1}`,user_request:j.status==='queued'?`Please prepare an application for the ${j.title} role at ${j.company}.`:'',requested_action:j.status==='queued'?'apply':'research',listing_text:`FICTIONAL DEMO LISTING\n\n${j.company} — ${j.title}\n${j.location} · ${j.work_style} · ${j.salary}\n\nWe are looking for a thoughtful coordinator who enjoys helping teams work well together.\n\nYou will:\n• Coordinate schedules and keep stakeholders informed.\n• Maintain clear records and improve everyday processes.\n• Support onboarding and cross-team projects.\n\nWhat you bring:\n${j.requirements.map(r=>'• '+r).join('\n')}\n\nThis is sample content for exploring Next Role. It is not a live opening.`}));
+    const jobs = definitions.map((j,i)=>mutate(root,'job add',{...j,fit_assessment:j.requirements.map((requirement,index)=>({requirement,priority:'required',...fitExamples[i][index]})),url:`https://example.com/demo-jobs/${i+1}`,user_request:j.status==='queued'?`Please prepare an application for the ${j.title} role at ${j.company}.`:'',requested_action:j.status==='queued'?'apply':'research',listing_text:`FICTIONAL DEMO LISTING\n\n${j.company} — ${j.title}\n${j.location} · ${j.work_style} · ${j.salary}\n\nWe are looking for a thoughtful coordinator who enjoys helping teams work well together.\n\nYou will:\n• Coordinate schedules and keep stakeholders informed.\n• Maintain clear records and improve everyday processes.\n• Support onboarding and cross-team projects.\n\nWhat you bring:\n${j.requirements.map(r=>'• '+r).join('\n')}\n\nThis is sample content for exploring Next Role. It is not a live opening.`}));
     const makeResume = j=>resume(root,j.id,{headline:j.title,summary:'Organized operations and project professional with experience coordinating staffing, maintaining shared records, and helping new team members get started.',skills:['Project coordination','Excel','Process documentation','Stakeholder communication'],tailoring_notes:`Emphasizes scheduling, process documentation, and clear stakeholder updates for ${j.company}. Omits unverified budget responsibility and unmeasured time savings.`,experiences:[{experience_id:exp.id,bullets:exp.accomplishments.map(a=>({text:a.text,fact_ids:[a.id]}))},{experience_id:exp2.id,bullets:exp2.accomplishments.map(a=>({text:a.text,fact_ids:[a.id]}))}]});
     const r0=makeResume(jobs[0]); makeResume(jobs[1]); const r2=makeResume(jobs[2]);
     const coverPath=path.join(root,'input','Canopy-cover-letter.txt');

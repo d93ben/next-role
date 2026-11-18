@@ -24,6 +24,7 @@ Your assistant recommends roles and a starting search area from your materials a
 - A career profile with a brain dump that saves original notes for the agent to organize.
 - Original answers, source-backed career facts, preferences, open questions, and indexed input files.
 - A separate record for every opportunity, including a saved listing, fit explanation, gaps, notes, next actions, dates, and activity history.
+- An evidence match percentage for assessed roles, with a per-criterion breakdown, a highest-match sort, and scores in the assistant's search summaries.
 - A finished, editable Word resume for the selected role, plus printable HTML, plain text and an evidence snapshot. The assistant explains significant edits in chat using original wording, tailored wording and the reason for the change. Preparing a role also includes starter interview questions and answer outlines.
 - Import existing PDF, DOCX, HTML, Markdown, or text application documents; archive the exact submitted resume and selected attachments.
 - An interview coach in your assistant chat that researches employer guides and candidate reports, builds answers from your experience, and runs one-question-at-a-time mock interviews with feedback. Try “Research questions for [role] at [company] and coach me through a mock interview.”
@@ -35,6 +36,8 @@ Your assistant recommends roles and a starting search area from your materials a
 The agent saves local records and rebuilds the dashboard and indexes. The dashboard presents an applications table, full-page job details, and career profile. Users can star jobs and save rough career notes. These two actions write to the same workspace files that the agent reads; they do not start an agent task. Search, tailoring, status changes, and conversation happen in the IDE or agent host.
 
 The launcher starts a small local server and opens the personal dashboard. Agent updates refresh automatically, preserving the current page and filters. Unsaved notes are retained in the current browser session and pause automatic refresh while you type. Saved notes are durable workspace records. The separate fictional demo is at `http://127.0.0.1:4317/demo/dashboard.html`.
+
+Click a document card under **Prepared files** or **Submitted materials** to preview it. Word and PDF source files also open in the preview from **Career profile**. The browser renders Word text, formatting, lists and tables locally. Complex Word layouts and page breaks can differ from the original. PDF uses your browser's built-in viewer. Use **Download** to keep the original file. In a dashboard opened directly from disk, generated resumes can use their printable HTML, and standalone Word files can be selected in the preview.
 
 For a foreground server, use `npm start` and stop it with Ctrl+C. The launcher keeps the local server running after its window closes and reuses it on subsequent launches. Directly opened HTML files remain portable, view-only snapshots; use the launcher for stars and note saving. There is no built-in search engine, email connection, or chatbot.
 

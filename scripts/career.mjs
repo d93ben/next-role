@@ -16,7 +16,7 @@ try {
   if (!command || ['help', '--help'].includes(command)) { console.log(help); process.exit(0); }
   let result;
   if (command === 'status') {
-    const s = load(root); result = { workspace: root, demo: s.meta.demo, profile: s.profile, memory: s.memory, index: path.join(root, 'INDEX.md'), pending_notes: s.brain_dump.filter(n => n.status !== 'processed'), jobs: s.jobs.map(j => ({ id: j.id, company: j.company, title: j.title, status: j.status, favorite: j.favorite, record: `applications/${j.id}/application.json`, next_action: j.next_action })), questions: s.questions.filter(q => q.status !== 'deferred' && !s.answers.some(a => a.question_id === q.id)), sources: s.intake.map(({ text, ...s }) => s), experience_count: s.experiences.length, answer_count: s.answers.length };
+    const s = load(root); result = { workspace: root, demo: s.meta.demo, profile: s.profile, memory: s.memory, index: path.join(root, 'INDEX.md'), pending_notes: s.brain_dump.filter(n => n.status !== 'processed'), jobs: s.jobs.map(j => ({ id: j.id, company: j.company, title: j.title, status: j.status, favorite: j.favorite, match_percent: j.fit_assessment?.percent ?? null, record: `applications/${j.id}/application.json`, next_action: j.next_action })), questions: s.questions.filter(q => q.status !== 'deferred' && !s.answers.some(a => a.question_id === q.id)), sources: s.intake.map(({ text, ...s }) => s), experience_count: s.experiences.length, answer_count: s.answers.length };
   } else if (command === 'validate') result = validate(root);
   else result = lock(root, () => {
     let data;

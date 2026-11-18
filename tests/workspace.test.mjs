@@ -46,6 +46,34 @@ test('job URL deduplication removes tracking but preserves posting IDs',t=>{
   const {root}=fixture(t);assert.throws(()=>mutate(root,'job add',{company:'Acme',title:'Coordinator',url:'https://example.com/job/42?utm_source=email#top',listing_text:'same'}),/already exists/);
   const j=mutate(root,'job add',{company:'Acme',title:'Second opening',url:'https://example.com/job/42?posting=43',listing_text:'Different posting'});assert.ok(j.id);
 });
+test('evidence matches use weighted criteria, reject unsupported credit, and persist across updates', t => {
+  const {root, job, experience} = fixture(t);
+  const evidence_refs = [experience.accomplishments[0].id];
+  const direct = {requirement:'Shared project records', priority:'required', status:'direct', reason:'Built a shared tracker.', evidence_refs};
+  const partial = {requirement:'Department-wide reporting', priority:'required', status:'partial', reason:'The tracker was used by three supervisors.', evidence_refs};
+  const unknown = {requirement:'Power BI', priority:'preferred', status:'unknown', reason:'No saved evidence for this tool.'};
+  assert.equal(job.fit_assessment, undefined);
+  assert.throws(() => mutate(root, 'job update', {fit_assessment:[{...direct, evidence_refs:[]}]}, job.id), /Match evidence is required/);
+  assert.throws(() => mutate(root, 'job update', {fit_assessment:[{...direct, evidence_refs:['fact_missing']}]}, job.id), /Unknown match evidence reference/);
+  assert.throws(() => mutate(root, 'job update', {fit_assessment:[direct, {...direct, requirement:'Shared  Project Records'}]}, job.id), /Repeated match requirement/);
+
+  const assessed = mutate(root, 'job update', {fit_assessment:[direct, partial, unknown]}, job.id);
+  assert.equal(assessed.fit_assessment.percent, 60);
+  assert.deepEqual(assessed.fit_assessment.criteria[0].evidence_refs, evidence_refs);
+  assert.equal(mutate(root, 'job update', {next_action:'Review the listing'}, job.id).fit_assessment.percent, 60);
+  build(root);
+  assert.equal(readJSON(path.join(root, 'index.json')).applications[0].match_percent, 60);
+
+  const scoredOnAdd = mutate(root, 'job add', {
+    company:'Example', title:'Project coordinator', listing_text:'Project records required. Power BI preferred.',
+    fit_assessment:[direct, unknown]
+  });
+  assert.equal(scoredOnAdd.fit_assessment.percent, 67);
+  assert.equal(mutate(root, 'job update', {fit_assessment:[]}, job.id).fit_assessment, null);
+  const zero = mutate(root, 'job update', {fit_assessment:[{...unknown,status:'gap'}]}, job.id);
+  assert.equal(zero.fit_assessment.percent, 0);
+  assert.equal(validate(root).ok, true);
+});
 test('invalid states and invented resume source IDs are rejected',t=>{
   const {root,job,payload}=fixture(t);
   assert.throws(()=>mutate(root,'job update',{status:'applied'},job.id),/Record a submission/);
@@ -119,6 +147,9 @@ test('generated dashboard escapes source content and has no assistant task contr
   const {root}=fixture(t);mutate(root,'profile set',{name:'</script><script>alert(1)</script>'});build(root);const html=fs.readFileSync(path.join(root,'dashboard.html'),'utf8');
   assert.ok(!html.includes('</script><script>alert(1)</script>'));assert.ok(html.includes('\\u003c/script>'));assert.ok(!html.includes('data-prompt='));assert.ok(!html.includes('Continue with my assistant'));assert.ok(!html.includes('prompt-dialog'));
   assert.match(html,/__next-role\/version/);const version=readJSON(path.join(root,'dashboard-version.json'));assert.ok(html.includes(version.built_at));
+  assert.match(html, /<dialog id="document-preview"/);
+  assert.match(html, /DecompressionStream\('deflate-raw'\)/);
+  assert.ok(!html.includes('/*__DOCUMENT_PREVIEW__*/'));
 });
 test('managed paths reject traversal, unsafe URLs, and simultaneous writes',t=>{
   const root=workspace(t);assert.throws(()=>inside(root,'../outside.json'),/inside/);assert.throws(()=>inside(root,'C:\\outside.json'),/relative/);

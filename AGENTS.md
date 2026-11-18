@@ -33,7 +33,7 @@ This project is an agent-operated job-search workspace. The user talks to you; t
 
 - Follow `workflows/onboarding.md`, `job-search.md`, `application.md`, `interview.md`, or `correspondence.md` as needed.
 - For a new or incomplete search profile, read the user's career materials and saved answers before asking about preferences. Present one recommended search profile for review, with reasons and clearly marked assumptions. Save preferences the user has stated or confirmed.
-- For a general job search, return a ranked shortlist using the coverage and result count in `workflows/job-search.md`.
+- For a general job search, return a ranked shortlist using the coverage and result count in `workflows/job-search.md`. Save evidence assessments where support exists and include the computed match percentage and material gaps in the search summary.
 - When the user selects a role to pursue, do the role research, produce the finished resume, and complete starter interview prep in the same workflow unless the user narrows the scope. Deliver the file, explain material source-to-resume changes, and share the practice questions in chat. Follow `workflows/application.md` and `workflows/interview.md`. An expression of interest authorizes preparation for that role. Queue and submit only under the existing application rules.
 - Ground every resume bullet in saved experience facts. Helpers check references, but YOU must check that wording and numbers are supported. Review summary, headline, skills, dates, and education too.
 - Do not invent employment, degrees, responsibilities, outcomes, metrics, salary, interview reports, or company facts. A job requirement is not evidence that the candidate has the skill.
