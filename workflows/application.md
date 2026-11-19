@@ -1,6 +1,8 @@
 # Prepare and track an application
 
 1. Identify the exact saved job. If the user asks to apply to an unsaved job, first read/save its listing, then set `queued` with their request. “Prepare” authorizes preparation; it does not by itself authorize submission.
+
+   For a new application, reopen the exact posting and recheck its Apply route using `job-search.md`. Save the result. If the opening is closed, tell the user before preparing materials for that application. If availability is unverified, disclose the limit and continue any requested drafting or interview practice using the saved details. Recheck before any later application handoff or submission. Interview preparation for an existing application can proceed based on the interview context.
 2. Read the saved listing, current profile, relevant experience facts, and previous documents. Match requirements to facts, not keywords alone. If the role has no evidence assessment or new information changes the match, follow the rubric in `job-search.md` and save the computed assessment when the evidence is sufficient. Ask focused questions when an important claim is missing. Save answers before using them.
 3. Use this drafting brief for the exact role and employer.
 

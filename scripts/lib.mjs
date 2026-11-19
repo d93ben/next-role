@@ -113,6 +113,28 @@ function normalizedURL(url) {
   const u = new URL(url); u.hash = ''; for (const k of [...u.searchParams.keys()]) if (/^(utm_|ref$|source$)/i.test(k)) u.searchParams.delete(k);
   u.searchParams.sort(); return u.href.replace(/\/$/, '');
 }
+function listingVerification(value) {
+  const {status} = object(value);
+  required(['open', 'closed', 'unverified'].includes(status), 'Listing availability must be open, closed, or unverified.');
+  const posting_url = safeURL(value.posting_url);
+  const apply_url = safeURL(value.apply_url);
+  required(status === 'unverified' || posting_url, 'Open and closed listings require the direct posting URL.');
+  required(status === 'open' ? apply_url : !apply_url, 'Supply an application URL only for an open listing.');
+  return {status, posting_url, apply_url, detail: text(value.detail, 'listing verification detail')};
+}
+function listingTimestamp(value, label) {
+  const timestamp = Date.parse(value);
+  required(!Number.isNaN(timestamp) && new Date(timestamp).toISOString() === value, `${label} must be an ISO UTC timestamp, such as 2026-01-01T12:00:00.000Z.`);
+  return timestamp;
+}
+export function verifiedListings(root, since) {
+  const cutoff = listingTimestamp(since, '--since');
+  const state = load(root);
+  if (state.meta.demo) return [];
+  return state.jobs
+    .filter(j => j.listing_verification?.status === 'open' && listingTimestamp(j.listing_verification.checked_at, 'Listing check time') >= cutoff)
+    .map(j => ({id: j.id, company: j.company, title: j.title, location: j.location, match_percent: j.fit_assessment?.percent ?? null, ...j.listing_verification}));
+}
 function fitCriteria(value, knownEvidence) {
   const seen = new Set();
   return list(value, 'fit_assessment').map(item => {
@@ -210,6 +232,7 @@ export function mutate(root, command, payload = {}, jobId = '') {
     required(payload.favorite === undefined || typeof payload.favorite === 'boolean', 'favorite must be true or false.');
     j.favorite = payload.favorite ?? false;
     if ('fit_assessment' in payload) j.fit_assessment = assessFit(payload.fit_assessment, state);
+    if ('listing_verification' in payload) j.listing_verification = {...listingVerification(payload.listing_verification), checked_at: now()};
     return saveJob(root, j, status === 'queued' ? 'Application requested' : 'Opportunity saved', j.user_request);
   }
   const job = findJob(root, jobId);
@@ -226,6 +249,7 @@ export function mutate(root, command, payload = {}, jobId = '') {
     if ('next_action_date' in payload) updates.next_action_date = date(payload.next_action_date, 'next_action_date');
     for (const key of ['requirements', 'matches', 'gaps']) if (key in payload) updates[key] = strings(payload[key], key);
     if ('fit_assessment' in payload) updates.fit_assessment = assessFit(payload.fit_assessment, state);
+    if ('listing_verification' in payload) updates.listing_verification = {...listingVerification(payload.listing_verification), checked_at: now()};
     required(updates.status !== 'queued' || updates.user_request, 'Queued jobs require the user request.');
     return saveJob(root, updates, 'Application updated', text(payload.change_note, 'change_note', true));
   }
@@ -357,6 +381,12 @@ export function validate(root) {
     check(typeof j.favorite === 'boolean', `${j.id}: favorite must be boolean.`);
     check(Boolean(j.company && j.title && j.listing_text), `${j.id}: incomplete listing.`);
     safeURL(j.url);
+    if (j.listing_verification != null) {
+      try {
+        listingVerification(j.listing_verification);
+        listingTimestamp(j.listing_verification.checked_at, 'Listing check time');
+      } catch (error) { errors.push(`${j.id}: ${error.message}`); }
+    }
     if (j.fit_assessment != null) {
       try {
         const criteria = fitCriteria(j.fit_assessment.criteria);

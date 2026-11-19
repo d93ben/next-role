@@ -46,6 +46,46 @@ test('job URL deduplication removes tracking but preserves posting IDs',t=>{
   const {root}=fixture(t);assert.throws(()=>mutate(root,'job add',{company:'Acme',title:'Coordinator',url:'https://example.com/job/42?utm_source=email#top',listing_text:'same'}),/already exists/);
   const j=mutate(root,'job add',{company:'Acme',title:'Second opening',url:'https://example.com/job/42?posting=43',listing_text:'Different posting'});assert.ok(j.id);
 });
+test('shortlists require a fresh open posting check with an application route', t => {
+  const {root, job} = fixture(t);
+  const runShortlist = since => spawnSync(process.execPath,
+    [path.join(ROOT, 'scripts/career.mjs'), 'job', 'shortlist', '--workspace', root, '--since', since],
+    {encoding: 'utf8'});
+  const shortlist = since => {
+    const output = runShortlist(since);
+    assert.equal(output.status, 0, output.stderr);
+    return JSON.parse(output.stdout);
+  };
+  const since = new Date().toISOString();
+  assert.deepEqual(shortlist(since), []);
+  assert.match(runShortlist('2026-01-01').stderr, /--since must be an ISO UTC timestamp/);
+
+  const posting_url = 'https://careers.example.com/roles/42';
+  const apply_url = `${posting_url}/apply`;
+  assert.throws(() => mutate(root, 'job update', {listing_verification: {
+    status: 'open', posting_url, detail: 'Found an indexed result.'
+  }}, job.id), /application URL/);
+  const verified = mutate(root, 'job update', {listing_verification: {
+    status: 'open', posting_url, apply_url, detail: 'Read the exact posting and opened its form.'
+  }}, job.id);
+  const [result] = shortlist(since);
+  assert.equal(result.id, job.id);
+  assert.equal(result.posting_url, posting_url);
+  assert.equal(result.apply_url, apply_url);
+  assert.equal(verified.url, job.url);
+  assert.equal(verified.status, 'queued');
+  assert.deepEqual(shortlist(new Date(Date.parse(result.checked_at) + 1).toISOString()), []);
+
+  const blocked = mutate(root, 'job add', {company: 'Example', title: 'Analyst', listing_text: 'Saved description.',
+    listing_verification: {status: 'unverified', detail: 'The site blocked access.'}});
+  assert.deepEqual(shortlist(since).map(row => row.id), [job.id]);
+  mutate(root, 'job update', {listing_verification: {
+    status: 'closed', posting_url, detail: 'The posting now says applications are closed.'
+  }}, job.id);
+  assert.deepEqual(shortlist(since), []);
+  assert.equal(load(root).jobs.find(row => row.id === blocked.id).listing_verification.status, 'unverified');
+  assert.equal(validate(root).ok, true);
+});
 test('evidence matches use weighted criteria, reject unsupported credit, and persist across updates', t => {
   const {root, job, experience} = fixture(t);
   const evidence_refs = [experience.accomplishments[0].id];

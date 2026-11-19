@@ -42,6 +42,7 @@ Use questions for unconfirmed ideas. The program validates structure and referen
 
 ```text
 node scripts/career.mjs job add --file workspace/job.json
+node scripts/career.mjs job shortlist --since "<UTC timestamp at start of final checks>"
 node scripts/career.mjs job update --id job_… --file workspace/job-update.json
 node scripts/career.mjs note add --id job_… --file workspace/note.json
 ```
@@ -51,6 +52,10 @@ node scripts/career.mjs note add --id job_… --file workspace/note.json
 **job update** supports status, location, work_style, salary, summary, requested_action, user_request, next_action, next_action_date, requirements/matches/gaps, `fit_assessment`, and optional `change_note`. Unknown fields are not persisted. Core listing/title/employer identity is preserved; create a distinct record for a distinct posting.
 
 Both commands accept a `fit_assessment` array. Each item has a distinct `requirement`, `priority` of `required` or `preferred`, a `status` of `direct`, `partial`, `gap`, or `unknown`, and a short `reason`. Direct and partial credit require `evidence_refs` containing saved experience, fact, source, answer, or career-note IDs. Passing an empty array clears the assessment. The saved assessment includes its criteria, `percent`, and `assessed_at`. The status and index summaries expose `match_percent` when assessed. Required items weigh twice as much as preferred items. Direct and partial evidence earn full and half credit, respectively.
+
+Both commands accept a `listing_verification` object with `status` (`open`, `closed`, or `unverified`) and a `detail` describing what the agent saw. Supply `posting_url` for an open or closed result and `apply_url` for an open result. Use the same URL for an inline application form. The helper stamps `checked_at`, stores the latest check separately from application status, and exposes the check in `status`. The assistant performs the live check using the workflow in `workflows/job-search.md`.
+
+`job shortlist` returns only saved openings with an `open` check recorded at or after `--since`. Use the UTC timestamp emitted by `new Date().toISOString()` immediately before the final availability pass. Older checks, closed or unverified listings, jobs with no check, and demo records are excluded.
 
 Statuses: saved → queued → preparing → ready → applied → interview → offer; rejected and withdrawn are terminal display groups. Status changes are explicit, not inferred from drafts or messages. `ready` requires a resume. Applied/interview/offer/rejected require recorded submission evidence. Use withdrawn for a saved opportunity the user decides not to pursue. To record an already-applied job, save its listing, import its actual submitted resume, and record the user's report.
 
