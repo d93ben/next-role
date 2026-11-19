@@ -1,6 +1,8 @@
 # Agent command reference
 
-Run commands from the project root. No npm install is required. Node.js 20+ is required. `workspace/` is the default data directory; `--workspace PATH` selects another directory. Never point a demo operation at a personal workspace.
+Run commands from the project root. `workspace/` is the default data directory. Use `--workspace PATH` to select another directory. Keep demo operations in the demo workspace.
+
+If Node.js 20 or newer is unavailable, replace `node` in the examples with `scripts\run-node.cmd` on Windows or `sh scripts/run-node.sh` on macOS and Linux. The wrapper checks for a project-local runtime, then a compatible system Node, then downloads the pinned runtime if required. The first download uses the official Node.js distribution and the checksums in `scripts/node-runtime.txt`.
 
 ```text
 node scripts/career.mjs init

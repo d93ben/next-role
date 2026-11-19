@@ -8,7 +8,7 @@ You can start with an old resume, a few notes, or nothing at all.
 
 ## For the person using Next Role
 
-1. Open **Start Next Role.cmd** on Windows. On macOS/Linux, run `sh start.sh`. The helpers require Node.js 20 or newer; no package installation or API key is needed.
+1. Open **Start Next Role.cmd** on Windows. On macOS/Linux, run `sh start.sh`. If Node.js is unavailable, the launcher can download a portable copy into this folder on supported x64 and Arm64 machines.
 2. Put career material in **workspace/input**. Keep original resumes, work notes, project descriptions, reviews, and useful examples.
 3. Open the project in your assistant and use the starter prompt above.
 4. The launcher opens your local dashboard. Browse applications, star favorites, or save rough notes in **Career profile**. Agent updates refresh automatically.
@@ -29,7 +29,7 @@ Try saying:
 
 ## For the assistant
 
-Read `AGENTS.md`, `MEMORY.md`, and the generated `workspace/INDEX.md`, then run `node scripts/career.mjs status`. Initialize only if needed. Read the relevant workflow and use the saved records before asking questions already answered. Never replace the user's workspace with demo data.
+For setup from a GitHub link, clone the repository or download and extract its source ZIP into a writable folder on the user's computer. Start there. Read `AGENTS.md`, `MEMORY.md`, and the generated `workspace/INDEX.md` if present. Use the launcher to start the dashboard if the host supports a local server and browser. Verify the workspace with `node scripts/career.mjs status`, or use `scripts\run-node.cmd scripts/career.mjs status` on Windows and `sh scripts/run-node.sh scripts/career.mjs status` on macOS/Linux when `node` is unavailable. The wrappers retrieve the folder-local runtime when needed. Initialize only if needed. Read the relevant workflow and use the saved records before asking questions already answered. Never replace the user's workspace with demo data.
 
 When you finish setup and need career materials, tell the user exactly what to do next. For example, "Add your resume, LinkedIn export, or work samples to `workspace/input`, then reply 'files are ready' and I'll review them." If materials are already there, review them and continue onboarding.
 

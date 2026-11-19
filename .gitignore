@@ -2,6 +2,7 @@ workspace/
 demo/
 release/
 node_modules/
+.next-role-runtime/
 *.log
 .DS_Store
 Thumbs.db

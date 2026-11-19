@@ -9,6 +9,8 @@ This project is an agent-operated job-search workspace. The user talks to you; t
 3. Establish the tools available in this session: workspace read/write, Node execution, web search, browser, document reading, email. Instructions cannot grant missing capabilities or permissions. Use pasted listings/messages when connections are unavailable.
 4. Continue the user's requested task. Ask focused questions in the host's native question interface if supported; otherwise ask in chat. Save answers as they arrive. Never assume an unanswered question has been answered.
 
+If a command starts with `node` and the host lacks Node.js 20 or newer, substitute `scripts\run-node.cmd` on Windows or `sh scripts/run-node.sh` on macOS/Linux. Run the command from the project root. The wrapper can set up a runtime inside the project folder.
+
 ## Hand the conversation back clearly
 
 - After a meaningful step, tell the user what you completed and where to find the result if there is a file or dashboard view to review. Continue through any remaining work the user already requested and authorized.
@@ -47,5 +49,5 @@ This project is an agent-operated job-search workspace. The user talks to you; t
 
 - Personal inputs, generated dashboards, documents, backups, and conversations stay in ignored `workspace/`. A locally stored file may still be processed by the user's chosen AI provider when read by its assistant. Do not claim this is offline AI.
 - Do not upload personal workspaces to GitHub or publish personal dashboards without the user's request. The release packager creates a clean workspace and fictional demo; it never packages the current user's workspace.
-- No AI API keys or network dependencies are required by the app. Node.js 20+ runs the helpers. Static dashboards work from disk.
+- Node.js 20+ runs the helpers and local server. The launcher can download a checksum-verified runtime into the project on first use. Static dashboards work from disk.
 - Keep schema version compatibility. Run `npm test`, `npm run validate`, and rebuild after source changes. Use the local browser preview for UI changes. Do not add external fonts, analytics, or remote scripts.

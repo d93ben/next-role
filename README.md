@@ -6,11 +6,17 @@ The assistant does the research and writing. The HTML dashboard gives you a calm
 
 ## Quick start
 
-Download and extract the release ZIP, then open the folder in an AI assistant with local file access and command execution. Node.js 20+ is the only runtime requirement for updating records. You can view the included dashboards without Node.
+Share this repository link with someone who has an AI assistant that can download files and run commands on their computer. They can give their assistant this prompt:
+
+> Download https://github.com/d93ben/next-role into a local folder, read START-HERE.md, and set up Next Role for me. Use the launcher for my operating system and show me where to add my career materials.
+
+For manual setup, clone the repository or download and extract its source ZIP. Then run the launcher from the extracted folder.
 
 - **Windows:** double-click `Start Next Role.cmd`.
 - **macOS/Linux:** run `sh start.sh`.
 - **From a terminal:** `npm run open` starts the local app and opens your browser.
+
+The launcher uses Node.js 20 or newer if it is available. On Windows, macOS and Linux x64 or Arm64, it can also download a pinned Node.js 24 LTS runtime, verify its SHA-256 checksum, and cache its executable and license in `.next-role-runtime/`. The first download needs internet access. The cached runtime travels with the folder when moved to a compatible machine. Viewing a generated dashboard from disk only needs a browser.
 
 Add career material to `workspace/input`. Tell your assistant:
 
@@ -43,7 +49,7 @@ For a foreground server, use `npm start` and stop it with Ctrl+C. The launcher k
 
 ## Assistant compatibility
 
-Shared instructions live in `AGENTS.md`; `CLAUDE.md` imports them, and `.github/copilot-instructions.md` points to them. Other hosts can start by explicitly reading `START-HERE.md`. Instruction discovery depends on the host and configuration. The core requirements are project-file read/write access and Node execution. Browser, search, email, and document-reading capabilities are optional and vary by host.
+Shared instructions live in `AGENTS.md`; `CLAUDE.md` imports them, and `.github/copilot-instructions.md` points to them. Other hosts can start by explicitly reading `START-HERE.md`. Instruction discovery depends on the host and configuration. The assistant needs local file access and command execution. Browser, search, email, and document-reading capabilities are optional and vary by host.
 
 This release verifies the local helper and dashboard workflow. It does not certify every assistant integration or automatically connect accounts. Browsing and sending/submitting remain governed by the user's chosen assistant and authorization.
 
