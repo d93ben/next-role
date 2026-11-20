@@ -1,0 +1,109 @@
+name: Build portable desktop release
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [package.json, .github/workflows/desktop-release.yml]
+permissions:
+  contents: read
+concurrency:
+  group: desktop-release-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm install --no-audit --no-fund
+      - run: npm test
+      - run: npm run setup
+      - run: npm run validate
+      - if: runner.os == 'Windows'
+        run: npm run desktop:win
+      - if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          node tests/packaged-desktop.mjs release/desktop/NextRole.exe "release/desktop/win-unpacked/Next Role.exe"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm run package
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          New-Item -ItemType Directory -Path deliverables
+          Copy-Item -LiteralPath release/desktop/NextRole.exe -Destination deliverables/
+          Copy-Item -Path release/next-role-v*.zip -Destination deliverables/
+      - if: runner.os == 'macOS'
+        env:
+          CSC_LINK: ${{ secrets.MAC_CERTIFICATE }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$CSC_LINK" ]]; then
+            unset CSC_LINK CSC_KEY_PASSWORD APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID
+          fi
+          npm run desktop:mac
+          bundle="release/desktop/mac-universal/Next Role.app"
+          lipo -verify_arch arm64 x86_64 "$bundle/Contents/MacOS/Next Role"
+          mkdir deliverables
+          if [[ -n "${CSC_LINK:-}" ]]; then
+            codesign --verify --deep --strict "$bundle"
+            xcrun stapler validate "$bundle"
+            spctl --assess --type execute "$bundle"
+            mv release/desktop/NextRole-Mac.zip deliverables/NextRole-Mac.zip
+          else
+            if ! codesign --verify --deep --strict "$bundle"; then
+              codesign --force --deep --sign - "$bundle"
+            fi
+            ditto -c -k --keepParent "$bundle" deliverables/NextRole-Mac-preview.zip
+          fi
+          mkdir -p "$RUNNER_TEMP/next-role-zip"
+          ditto -x -k deliverables/NextRole-Mac*.zip "$RUNNER_TEMP/next-role-zip"
+          exe="$RUNNER_TEMP/next-role-zip/Next Role.app/Contents/MacOS/Next Role"
+          node tests/packaged-desktop.mjs "$exe" "$exe"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: next-role-${{ runner.os }}
+          path: deliverables/*
+          if-no-files-found: error
+
+  publish:
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: next-role-*
+          merge-multiple: true
+          path: deliverables
+      - name: Publish verified downloads
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          version=$(node -p "require('./package.json').version")
+          tag="v$version"
+          cd deliverables
+          sha256sum *.exe *.zip > SHA256SUMS.txt
+          cat > "$RUNNER_TEMP/release-notes.md" <<'NOTES'
+          Open Next Role on Windows or Mac to star jobs, save notes and see updates from your assistant. The desktop app reads your local workspace and runs without a server or a separate Node installation. The smaller HTML workspace ZIP is also included.
+
+          Keep the workspace folder when updating the app. To switch computers, copy that folder and open it with the matching platform download.
+          NOTES
+          if [[ -f NextRole-Mac-preview.zip ]]; then
+            echo 'The universal Mac preview is ad-hoc signed and has no Apple notarization. macOS Gatekeeper can block its first launch.' >> "$RUNNER_TEMP/release-notes.md"
+          fi
+          gh release create "$tag" ./* --target "$GITHUB_SHA" --title "Next Role $version" --notes-file "$RUNNER_TEMP/release-notes.md"
+

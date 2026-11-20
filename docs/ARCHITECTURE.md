@@ -4,7 +4,7 @@
 
 The agent host owns conversation, search, reasoning, connected tools, and authorization for external actions. Next Role supplies instructions, a durable record format, validation/helpers, resume rendering, and a local dashboard. There is no embedded model runtime, task runner, cloud database, or email sender.
 
-The agent saves and validates records through the helpers, which regenerate the HTML dashboard. Open the file directly and reload it after a change. Users attach career materials, request job searches, and manage favorites and notes in chat. The optional live server supports the older dashboard write controls.
+The agent saves and validates records through the helpers, which regenerate the HTML dashboard. The Windows and Mac desktop apps render the same UI from bundled code and canonical workspace records. A local Electron protocol delivers documents and views without a listening socket. A sandboxed preload exposes two operations to the main dashboard frame: checking its revision and saving a favorite or career note. The desktop, CLI and optional live server use the same record mutations and lock. The standalone HTML file also opens in a browser as a snapshot.
 
 ## Records (schema version 1)
 
@@ -32,7 +32,7 @@ workspace/
   dashboard-version.json         local live-preview refresh marker
 ```
 
-Each job's listing text is embedded in its application record rather than a second editable listing file. The original URL and captured date accompany it. Application IDs are stable and independent of employer name. No browser storage is authoritative: sessionStorage keeps view/filter preferences and an unsaved note draft. A note is durable only after the server confirms saving it.
+Each job record contains its listing text, URL and capture date. Application IDs are stable and independent of employer name. Session storage keeps view preferences and the current unsaved note draft. A note is durable when the workspace helper confirms the write.
 
 Source references link experience to original answers, brain-dump notes, or input versions. Input changes create new source IDs while retaining historical source metadata/text. Resume JSON captures the profile and selected facts at generation time, so later experience edits do not rewrite earlier resumes. Submission files are separate byte copies; validation detects missing files or hash changes.
 

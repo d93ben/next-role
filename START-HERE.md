@@ -6,6 +6,8 @@ Open this folder in an AI assistant with permission to read and write project fi
 
 You can start with an old resume, a few notes, or nothing at all.
 
+If you downloaded the desktop app, open it once. Choose **File → Show workspace folder**, then give your AI assistant access to the enclosing folder where the app placed these instructions. You can star a job and save career notes directly in the app. Saved changes from chat appear automatically. For the plain HTML dashboard, refresh the browser after a save.
+
 ## For the person using Next Role
 
 1. Open the extracted project folder in your AI assistant and use the starter prompt above.
@@ -28,6 +30,8 @@ Try saying:
 - “Here is a recruiter email. Save it to the right application and help me draft a reply.”
 
 ## For the assistant
+
+For a desktop download, use the app's built-in commands. On Windows run `NextRole.exe --cli status --workspace "<workspace folder>" --output "<result.json>"`. On Mac run `"/path/to/Next Role.app/Contents/MacOS/Next Role" --cli status --workspace "<workspace folder>"`. Use the same substitution for every `node scripts/career.mjs` command. The optional `--output` writes the JSON result to a file, including with Windows launchers that have no console. Put personal payloads and results in the user's workspace. Use the actual executable and workspace paths. A standalone app contains the helpers and requires no separate Node installation.
 
 For setup from a GitHub link, clone the repository or download and extract its source ZIP into a writable folder on the user's computer. Start there. Read `AGENTS.md`, `MEMORY.md`, and the generated `workspace/INDEX.md` if present. Open the generated workspace/dashboard.html directly when showing results. Reload an existing dashboard tab when available or give the user the file location and a refresh instruction. Verify the workspace with `node scripts/career.mjs status`, or use `scripts\run-node.cmd scripts/career.mjs status` on Windows and `sh scripts/run-node.sh scripts/career.mjs status` on macOS/Linux when `node` is unavailable. The wrappers retrieve the folder-local runtime when needed. Initialize only if needed. Read the relevant workflow and use the saved records before asking questions already answered. Never replace the user's workspace with demo data.
 

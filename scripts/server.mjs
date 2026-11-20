@@ -2,7 +2,8 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { APP_VERSION, init, lock, mutate, build } from './lib.mjs';
+import { APP_VERSION, init, lock, build } from './lib.mjs';
+import { saveDashboardAction } from './dashboard-actions.mjs';
 import { resolveRequest } from './server-paths.mjs';
 
 const types = { '.html':'text/html; charset=utf-8', '.txt':'text/plain; charset=utf-8', '.md':'text/plain; charset=utf-8', '.json':'application/json', '.pdf':'application/pdf', '.docx':'application/vnd.openxmlformats-officedocument.wordprocessingml.document' };
@@ -24,12 +25,7 @@ export function createAppServer(projectRoot) {
         if (!scopes.includes(p.workspace)) { reply(res,400,{error:'Unknown workspace.'}); return; }
         if (!['favorite','brain-dump'].includes(p.action)) { reply(res,400,{error:'Only favorites and personal notes can be saved here.'}); return; }
         const root=path.join(projectRoot,p.workspace);
-        const value=lock(root,()=>{
-          let result;
-          if(p.action==='favorite') result=mutate(root,'favorite set',{favorite:p.favorite},p.job_id);
-          else result=mutate(root,'brain-dump add',{title:p.title,text:p.text,request_id:p.request_id});
-          const snapshot=build(root); return { result, built_at:snapshot.built_at };
-        });
+        const value=saveDashboardAction(root,p);
         reply(res,200,value);
       } catch(error) { reply(res,error.message.includes('in progress')?409:400,{error:error.message}); }
       return;

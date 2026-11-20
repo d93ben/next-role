@@ -1,0 +1,47 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { build, dashboardState, load, lock, mutate, readJSON, renderDashboard } from '../scripts/lib.mjs';
+import { saveDashboardAction } from '../scripts/dashboard-actions.mjs';
+import { dashboardScope, portableParent, prepareWorkspace, resourcePath, scopeRoot } from '../desktop/workspace.mjs';
+
+test('desktop and agent share records across a portable move', t => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(),'next-role-desktop-'));
+  t.after(() => fs.rmSync(dir,{recursive:true,force:true}));
+  const root = path.join(dir,'first','workspace');
+  prepareWorkspace(root);
+  const j = mutate(root,'job add',{company:'Example',title:'Coordinator',listing_text:'Coordinate projects.'});
+  const version = build(root).built_at;
+  const saved = saveDashboardAction(root,{action:'favorite',job_id:j.id,favorite:true});
+  assert.equal(saved.result.favorite,true);
+  assert.equal(readJSON(path.join(root,'dashboard-version.json')).built_at,saved.built_at);
+  assert.throws(() => lock(root,() => saveDashboardAction(root,{action:'favorite',job_id:j.id,favorite:false})),/in progress/);
+  assert.throws(() => saveDashboardAction(root,{action:'submit'}),/Only favorites/);
+  const note = {action:'brain-dump',title:'Example',text:'My note',request_id:'example-1'};
+  saveDashboardAction(root,note);
+  saveDashboardAction(root,note);
+  assert.equal(load(root).brain_dump.length,1);
+  assert.notEqual(readJSON(path.join(root,'dashboard-version.json')).built_at,version);
+  fs.renameSync(path.dirname(root),path.join(dir,'second'));
+  const moved = path.join(dir,'second','workspace');
+  prepareWorkspace(moved);
+  assert.equal(load(moved).jobs[0].favorite,true);
+  assert.equal(load(moved).brain_dump[0].text,'My note');
+  assert.equal(load(scopeRoot(moved,'demo')).meta.demo,true);
+  assert.equal(load(moved).meta.demo,false);
+  assert.match(renderDashboard(dashboardState(moved,'sample')),/My note/);
+  assert.ok(fs.existsSync(path.join(dir,'second','workflows','application.md')));
+  const guide = path.join(dir,'second','AGENTS.md');
+  fs.writeFileSync(guide,'My custom guide');
+  prepareWorkspace(moved);
+  assert.equal(fs.readFileSync(guide,'utf8'),'My custom guide');
+  assert.equal(portableParent('win32','temp.exe',dir),dir);
+  assert.equal(portableParent('darwin',path.join(dir,'Next Role.app','Contents','MacOS','Next Role')),dir);
+  assert.equal(dashboardScope('nextrole://app/workspace/dashboard.html#profile'),'workspace');
+  assert.equal(dashboardScope('nextrole://other/workspace/dashboard.html'),null);
+  assert.equal(resourcePath(moved,'nextrole://app/workspace/.backups/private.json'),null);
+  assert.equal(resourcePath(moved,'nextrole://app/workspace/input/sample.pdf'),path.join(moved,'input','sample.pdf'));
+});
+

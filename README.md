@@ -8,6 +8,10 @@ You always submit your own applications. When you ask to apply, your assistant p
 
 ## Quick start
 
+For the desktop dashboard, download the Windows executable or the universal Mac ZIP from [GitHub Releases](https://github.com/d93ben/next-role/releases). On Windows, put `NextRole.exe` in a writable folder and double-click it. On Mac, unzip the archive, open `Next Role.app`, and choose a folder for your records. A Mac artifact labeled **preview** is ad-hoc signed and has no Apple notarization. The desktop dashboard includes its runtime and works without a server. Click a star to save a favorite or use **Career profile** to add a note. Changes from your AI assistant appear automatically after a save.
+
+Use **File → Show workspace folder** to locate your records. Move that entire folder when switching computers, then use **File → Open another workspace** on the other device. Replacing the executable or app bundle preserves the records. AI chat, live job searches, and mail connections still run in your chosen assistant.
+
 Give your AI assistant the GitHub link and this prompt.
 
 > Set up https://github.com/d93ben/next-role in a local folder, read START-HERE.md, and help me start my job search. Ask me for my résumé in this chat.
@@ -64,6 +68,6 @@ npm start
 npm run package
 ```
 
-There are no npm dependencies and no install step. `npm run package` produces a versioned ZIP under `release/` from an explicit source allowlist, a fresh empty personal workspace, and newly generated fictional examples. It excludes existing personal data, credentials, test output, and backups.
+The HTML release and workspace helpers use Node's standard library. The desktop build tools are development dependencies. To build the portable Windows executable or universal Mac ZIP, install the development dependencies and run `npm run desktop:win` on Windows or `npm run desktop:mac` on macOS. Desktop build output goes to `release/desktop/`. The GitHub workflow tests the packaged application on each OS before publishing. `npm run package` continues to produce the HTML ZIP with a clean workspace and fictional examples.
 
 See `docs/COMMANDS.md` for commands, `docs/ARCHITECTURE.md` for storage contracts, and `docs/QA.md` for verification and current limitations. MIT licensed.

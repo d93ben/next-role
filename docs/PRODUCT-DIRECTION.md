@@ -27,7 +27,7 @@ The user's résumé template is a workspace-wide preference. The assistant reuse
 
 The preferred download is a GitHub Release ZIP with a clean, prebuilt personal dashboard and a separate fictional demo. A user should be able to extract it and open the dashboard with a double-click. A source checkout can have its dashboard built by the assistant during setup. Release packaging uses fresh records and demo data.
 
-The local server is outside the default setup. Its eventual retirement is an implementation decision. Electron is deferred. Revisit it if a desktop-only capability becomes necessary for the chat-first workflow.
+Offer portable Windows and Mac apps for users who want automatic refresh, favorites, and notes directly in the dashboard. Bundle the runtime and keep a movable workspace outside the executable or app bundle. Preserve the standalone HTML ZIP for browser viewing. Searches, file intake, and application preparation stay in chat.
 
 ## Change history
 
@@ -42,5 +42,6 @@ The local server is outside the default setup. Its eventual retirement is an imp
 | 2026-11-19 | Each role now has one current generated resume. Submission uses a named PDF and preserves the exact copy sent. The assistant offers a reusable template with the first resume. The workspace index shows both resume links and template state. | Included in the local 1.3.0 package. |
 | 2026-11-19 | Made the final submission a user action for every application, including one-click forms and application emails. | Included in v1.3.1. |
 | 2026-11-19 | Made template reuse explicit across roles and sessions. A supplied template suppresses the invitation. Changing the saved template requires the user to choose a replacement. | Included in v1.3.2. |
+| 2026-11-20 | Added Windows portable and universal Mac desktop builds, direct favorites and career notes, automatic refresh, and a bundled agent CLI. A shared workspace can move between platforms. | v1.4.0 desktop build. Apple notarization requires publisher credentials. |
 
 Append a dated row when a product decision changes or ships. Record the reason and distinguish agreed direction, local drafts, and released behavior.

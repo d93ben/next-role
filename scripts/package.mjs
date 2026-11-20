@@ -9,7 +9,7 @@ import { createDemo } from './demo.mjs';
 export function packageApp(outputRoot = path.join(ROOT,'release')) {
   fs.mkdirSync(outputRoot,{recursive:true});
   const stage=path.join(outputRoot,`stage-${crypto.randomUUID().slice(0,8)}`,'next-role');fs.mkdirSync(stage,{recursive:true});
-  const allowed=['package.json','.gitignore','LICENSE','README.md','START-HERE.md','AGENTS.md','MEMORY.md','CLAUDE.md','Start Next Role.cmd','start.sh','.github','scripts','ui','workflows','templates','docs','tests'];
+  const allowed=['package.json','.gitignore','LICENSE','README.md','START-HERE.md','AGENTS.md','MEMORY.md','CLAUDE.md','Start Next Role.cmd','start.sh','.github','desktop','scripts','ui','workflows','templates','docs','tests'];
   for(const entry of allowed){const src=path.join(ROOT,entry);if(!fs.existsSync(src))throw new Error(`Missing release source: ${entry}`);fs.cpSync(src,path.join(stage,entry),{recursive:true,filter:source=>!source.endsWith('.png')&&!source.endsWith('.tmp')});}
   lock(path.join(stage,'workspace'),()=>{init(path.join(stage,'workspace'));build(path.join(stage,'workspace'));});
   createDemo(path.join(stage,'demo'));

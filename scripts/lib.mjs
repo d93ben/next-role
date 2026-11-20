@@ -513,27 +513,34 @@ export function writeIndex(root, state = load(root)) {
   atomic(inside(root, 'INDEX.md'), markdown);
   return index;
 }
-export function build(root) {
-  validate(root); const state = load(root);
+export function dashboardState(root, builtAt) {
+  const state = load(root);
   for (const job of state.jobs) {
     const latest = job.documents.filter(isGeneratedResume).at(-1);
     job.documents = job.documents.filter(d => !isGeneratedResume(d) || d === latest);
   }
-  if (!fs.existsSync(inside(root, 'profile/brain-dump.json'))) save(root, 'profile/brain-dump.json', state.brain_dump);
-  if (!fs.existsSync(inside(root, 'memory.json'))) save(root, 'memory.json', state.memory);
   state.questions = state.questions.map(q => ({ ...q, status: state.answers.some(a => a.question_id === q.id) ? 'answered' : q.status }));
-  state.built_at = now(); state.statuses = STATUSES;
-  writeIndex(root, state);
+  state.built_at = builtAt; state.statuses = STATUSES;
+  return state;
+}
+export function renderDashboard(state) {
   const template = fs.readFileSync(path.join(ROOT, 'ui', 'shell.html'), 'utf8');
   const css = fs.readFileSync(path.join(ROOT, 'ui', 'styles.css'), 'utf8');
   const preview = fs.readFileSync(path.join(ROOT, 'ui', 'document-preview.js'), 'utf8');
   const js = fs.readFileSync(path.join(ROOT, 'ui', 'app.js'), 'utf8');
   const json = JSON.stringify(state).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
-  const output = template.replace('/*__STYLES__*/', () => css)
+  return template.replace('/*__STYLES__*/', () => css)
     .replace('/*__DOCUMENT_PREVIEW__*/', () => preview)
     .replace('/*__APP__*/', () => js)
     .replace('/*__DATA__*/', () => `window.NEXT_ROLE = ${json};`);
-  atomic(inside(root, 'dashboard.html'), output);
+}
+export function build(root) {
+  validate(root);
+  const state = dashboardState(root, now());
+  if (!fs.existsSync(inside(root, 'profile/brain-dump.json'))) save(root, 'profile/brain-dump.json', state.brain_dump);
+  if (!fs.existsSync(inside(root, 'memory.json'))) save(root, 'memory.json', state.memory);
+  writeIndex(root, state);
+  atomic(inside(root, 'dashboard.html'), renderDashboard(state));
   atomic(inside(root, 'dashboard-version.json'), JSON.stringify({ built_at: state.built_at }));
   return { dashboard: path.join(root, 'dashboard.html'), built_at: state.built_at, jobs: state.jobs.length };
 }

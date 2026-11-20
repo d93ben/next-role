@@ -9,7 +9,7 @@ This project is an agent-operated job-search workspace. The user talks to you; t
 3. Establish the tools available in this session: workspace read/write, Node execution, web search, browser, document reading, email. Instructions cannot grant missing capabilities or permissions. Use pasted listings/messages when connections are unavailable.
 4. Continue the user's requested task. Ask focused questions in the host's native question interface if supported; otherwise ask in chat. Save answers as they arrive. Never assume an unanswered question has been answered.
 
-If a command starts with `node` and the host lacks Node.js 20 or newer, substitute `scripts\run-node.cmd` on Windows or `sh scripts/run-node.sh` on macOS/Linux. Run the command from the project root. The wrapper can set up a runtime inside the project folder.
+In a desktop distribution, use the app's `--cli` entry point for every workspace command, including the initial status check. See `START-HERE.md` for Windows and Mac examples. Use the user's workspace with `--workspace`. The desktop app provides its own runtime. In a source or HTML distribution, if a command starts with `node` and the host lacks Node.js 20 or newer, substitute `scripts\run-node.cmd` on Windows or `sh scripts/run-node.sh` on macOS/Linux. Run the command from the project root.
 
 ## Hand the conversation back clearly
 
@@ -21,7 +21,7 @@ If a command starts with `node` and the host lacks Node.js 20 or newer, substitu
 
 - Canonical data lives under `workspace/`. `demo/` is a separate fictional example; never use it as the user's experience.
 - Use `node scripts/career.mjs … --file <payload.json>` for mutations. Payload files containing personal information belong under `workspace/`, never in tracked templates. See `docs/COMMANDS.md` and `templates/`.
-- Helpers validate and regenerate `workspace/INDEX.md`, `workspace/index.json`, and `workspace/dashboard.html`. Open the HTML directly in a browser. After updates, refresh the open dashboard when the host can, or tell the user to refresh it. Handle favorites, notes, status updates, and job-search requests in chat.
+- Helpers validate and regenerate `workspace/INDEX.md`, `workspace/index.json`, and `workspace/dashboard.html`. The desktop dashboard shows saved changes automatically and lets users save favorites and career notes. These actions also work through chat. Use chat for intake, status updates, and job searches. A directly opened HTML dashboard needs a browser refresh after changes.
 - For onboarding, invite the user to attach career files to the conversation. Follow `workflows/onboarding.md` to save accessible originals and index them.
 - Read unprocessed `profile/brain-dump.json` notes before asking repeat questions. Use their IDs as evidence references when extracting supported experience; preserve original text. Mark a note processed only after recording its information, linking experience IDs or explaining where it went.
 - A favorite is a preference, not authorization to apply. Record a request to apply separately, preserving the user's actual request.
