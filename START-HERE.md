@@ -11,6 +11,7 @@ You can start with an old resume, a few notes, or nothing at all.
 1. Open the extracted project folder in your AI assistant and use the starter prompt above.
 2. Drag your résumé, LinkedIn export, or work samples into the chat. You can also tell the assistant about a recent role. Ask it to save notes, star jobs, or update applications as you go.
 3. Open **workspace/dashboard.html** to browse the results. Refresh it after the assistant updates your records.
+4. When you ask to apply, the assistant prepares the materials and stops before submission. Review the application and click **Submit** yourself, or send the draft email if the employer accepts applications by email.
 
 Open **demo/dashboard.html** to explore the fictional search.
 

@@ -2,7 +2,9 @@
 
 ## The user works in chat
 
-Next Role is an agent-operated job search. The user asks their AI assistant to set up a career profile, find and verify jobs, save favorites, take notes, tailor résumés, and prepare for interviews. They can do the whole workflow in chat. The assistant saves results in the local workspace and tells the user what changed and where to find it.
+Next Role is an agent-operated job search. The user asks their AI assistant to set up a career profile, find and verify jobs, save favorites, take notes, tailor résumés, and prepare for interviews. The assistant saves results in the local workspace and tells the user what changed and where to find it.
+
+The user personally submits every application. The assistant can prepare a form or an application email, then hands it back with the exact files and remaining action. Even a request to submit ends at that handoff. The application stays ready until the user reports submitting or the assistant observes a matching receipt.
 
 ## First-time setup
 
@@ -36,5 +38,6 @@ The local server is outside the default setup. Its eventual retirement is an imp
 | 2026-11-19 | Implemented standalone HTML startup and chat attachment onboarding. Removed the dashboard intake draft. | Included in the local 1.2.0 package. |
 | 2026-11-19 | Added an optional post-search email review for the last three calendar months, a single date, or a custom range. The assistant waits for the user's request before reading mail. | Included in the local 1.2.0 package. |
 | 2026-11-19 | Each role now has one current generated resume. Submission uses a named PDF and preserves the exact copy sent. The assistant offers a reusable template with the first resume. The workspace index shows both resume links and template state. | Included in the local 1.3.0 package. |
+| 2026-11-19 | Made the final submission a user action for every application, including one-click forms and application emails. | Included in v1.3.1. |
 
 Append a dated row when a product decision changes or ships. Record the reason and distinguish agreed direction, local drafts, and released behavior.

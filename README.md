@@ -4,6 +4,8 @@ A portable, agent-operated job-search workspace. Bring your own AI assistant; ke
 
 The assistant does the research and writing. The HTML dashboard gives you a calm place to see the results. It contains no chatbot, AI subscription, or built-in job scraper.
 
+You always submit your own applications. When you ask to apply, your assistant prepares the materials and stops before the final click or email send. Tell it once you've submitted so it can record the application.
+
 ## Quick start
 
 Give your AI assistant the GitHub link and this prompt.
@@ -43,7 +45,7 @@ Developers can run the optional local server with `npm run live` for live refres
 
 Shared instructions live in `AGENTS.md`; `CLAUDE.md` imports them, and `.github/copilot-instructions.md` points to them. Other hosts can start by explicitly reading `START-HERE.md`. Instruction discovery depends on the host and configuration. The assistant needs local file access and command execution. Browser, search, email, and document-reading capabilities are optional and vary by host.
 
-This release verifies the local helper and dashboard workflow. It does not certify every assistant integration or automatically connect accounts. Browsing and sending/submitting remain governed by the user's chosen assistant and authorization.
+This release verifies the local helper and dashboard workflow. It does not certify every assistant integration or automatically connect accounts. Browsing and correspondence depend on the tools available in the user's chosen assistant.
 
 ## Your data
 
@@ -62,6 +64,6 @@ npm start
 npm run package
 ```
 
-There are no npm dependencies and no install step. `npm run package` produces `release/next-role-v1.3.0.zip` from an explicit source allowlist, a fresh empty personal workspace, and newly generated fictional examples. It excludes existing personal data, credentials, test output, and backups.
+There are no npm dependencies and no install step. `npm run package` produces a versioned ZIP under `release/` from an explicit source allowlist, a fresh empty personal workspace, and newly generated fictional examples. It excludes existing personal data, credentials, test output, and backups.
 
 See `docs/COMMANDS.md` for commands, `docs/ARCHITECTURE.md` for storage contracts, and `docs/QA.md` for verification and current limitations. MIT licensed.
