@@ -14,6 +14,8 @@ The assistant invites the user to drop career files into the chat. A résumé, L
 
 When the host can access the original attachments and write local files, the assistant saves them under `workspace/input/` and indexes them with the existing intake helper. If the host cannot access the attachment, the assistant asks for pasted text or offers `workspace/input/` as the file-manager fallback. The assistant confirms which materials it actually saved and was able to review.
 
+The user's résumé template is a workspace-wide preference. The assistant reuses it automatically for each role and revision. The first résumé delivery includes a template invitation only when the user has neither supplied a template nor received the invitation. Later uploads become the active template only when the user asks to switch.
+
 ## The dashboard shows saved work
 
 - The default entry point is `workspace/dashboard.html`, opened directly in a browser. Opening a prebuilt dashboard should work without a localhost server or a Node installation.
@@ -39,5 +41,6 @@ The local server is outside the default setup. Its eventual retirement is an imp
 | 2026-11-19 | Added an optional post-search email review for the last three calendar months, a single date, or a custom range. The assistant waits for the user's request before reading mail. | Included in the local 1.2.0 package. |
 | 2026-11-19 | Each role now has one current generated resume. Submission uses a named PDF and preserves the exact copy sent. The assistant offers a reusable template with the first resume. The workspace index shows both resume links and template state. | Included in the local 1.3.0 package. |
 | 2026-11-19 | Made the final submission a user action for every application, including one-click forms and application emails. | Included in v1.3.1. |
+| 2026-11-19 | Made template reuse explicit across roles and sessions. A supplied template suppresses the invitation. Changing the saved template requires the user to choose a replacement. | Included in v1.3.2. |
 
 Append a dated row when a product decision changes or ships. Record the reason and distinguish agreed direction, local drafts, and released behavior.

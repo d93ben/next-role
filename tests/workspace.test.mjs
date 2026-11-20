@@ -201,6 +201,48 @@ test('custom template uses supplied PDF bytes and keeps the original, even after
   assert.deepEqual(fs.readFileSync(inside(root,replacement.files[0].path)),originalPdf);
   assert.deepEqual(fs.readFileSync(template),originalPdf);
 });
+test('a template supplied before first delivery persists across roles until explicitly replaced', t => {
+  const {root, job, payload} = fixture(t);
+  const first = 'templates/original/layout.docx';
+  const next = 'templates/replacement/layout.docx';
+  for (const relative of [first, next]) {
+    const file = inside(root, relative);
+    fs.mkdirSync(path.dirname(file), {recursive:true});
+    fs.writeFileSync(file, relative);
+  }
+  mutate(root, 'profile set', {resume_template_path:first});
+  fs.writeFileSync(inside(root, 'input/sample-resume.txt'), 'A reference resume');
+  intake(root);
+  mutate(root, 'profile set', {headline:'Updated headline'});
+  assert.throws(() => mutate(root, 'profile set', {resume_template_path:next}), /replacement/);
+  assert.throws(() => mutate(root, 'profile set', {resume_template_path:''}), /replacement/);
+  assert.equal(load(root).profile.resume_template_path, first);
+
+  const pdfPath = inside(root, 'input/rendered.pdf');
+  fs.writeFileSync(pdfPath, '%PDF-1.4\nRendered test document\n%%EOF\n');
+  const secondJob = mutate(root, 'job add', {company:'Other Co',title:'Lead',listing_text:'Other opening'});
+  const render = role => resume(root, role.id, {...payload, pdf_path:pdfPath});
+  for (const role of [job, secondJob]) {
+    assert.throws(() => resume(root, role.id, payload), /saved template/);
+    const draft = render(role);
+    assert.equal(draft.offer_template_in_chat, false);
+    const snapshot = readJSON(inside(root, draft.files.find(f => f.format === 'json').path));
+    assert.equal(snapshot.profile.resume_template_path, first);
+  }
+
+  const change = {resume_template_path:next, replaces_resume_template_path:first};
+  mutate(root, 'profile set', change);
+  mutate(root, 'profile set', change); // A retry of the same selection is harmless.
+  assert.throws(() => mutate(root, 'profile set', {resume_template_path:'',replaces_resume_template_path:first}), /replacement/);
+  const revision = render(secondJob);
+  assert.equal(revision.offer_template_in_chat, false);
+  assert.equal(readJSON(inside(root, revision.files.find(f => f.format === 'json').path)).profile.resume_template_path, next);
+  build(root);
+  const index = fs.readFileSync(inside(root, 'INDEX.md'), 'utf8');
+  assert.ok(index.includes(next) && !index.includes('Offer a template'));
+  mutate(root, 'profile set', {resume_template_path:'', replaces_resume_template_path:next});
+  assert.equal(resume(root, job.id, payload).offer_template_in_chat, false);
+});
 test('interview reports need sources; predictions remain distinct',t=>{
   const {root,job,experience}=fixture(t);assert.throws(()=>mutate(root,'research add',{kind:'reported_question',title:'Question',content:'Claimed report'},job.id),/requires|require/);
   mutate(root,'research add',{kind:'predicted_question',title:'Tell me about a tracker.',content:'Suggested from listing.',experience_ids:[experience.id]},job.id);
