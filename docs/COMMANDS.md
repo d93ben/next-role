@@ -69,13 +69,17 @@ node scripts/career.mjs document add --id job_… --file workspace/document.json
 node scripts/career.mjs submission record --id job_… --file workspace/submission.json
 ```
 
-**resume create** generates an editable DOCX using `templates/resume-styles.xml`, printable HTML, plain text and an evidence snapshot. Supply the supported headline, summary, existing skills, tailoring notes and experiences to include. Each experience references an `experience_id` and includes bullets with `text` and supporting `fact_ids`. A bullet may also include a `rationale` and a `source_excerpt` object containing a `source_id` and an exact `quote` from a linked input, answer or career note. These fields appear in the evidence snapshot for the agent's chat explanation. Each call creates a new version. The result identifies the DOCX as the primary format.
+**resume create** generates a named submission PDF, editable DOCX, printable HTML, text and an evidence snapshot. Select existing skills and experience IDs and include supporting fact IDs for each bullet. Optional bullet fields are `rationale` and `source_excerpt` with `source_id` and an exact `quote`. Each successful revision becomes the sole current AI resume for that job. Older generated working files go into local recovery backups. Prior entries are collapsed when displaying older workspaces. Uploaded originals, other roles, and submitted copies are retained.
+
+The primary filename uses lowercase given name, family name, and company separated by underscores. Set `given_name` and `family_name` via `profile set` for compound names or a different display order. The fallback uses the first and last words in the profile's display name. A single name appears once.
+
+Supply a checked `pdf_path` to use a template-rendered or externally rendered PDF as the primary file. Supply its `docx_path` for a matching editable file. The default PDF uses standard Western fonts. Use the host's document renderer with suitable fonts for other scripts. `offer_template_in_chat` in the command result prompts the agent at the first delivery. `profile set` accepts `resume_template_offered` and `resume_template_path` (an existing file under `workspace/templates/`, or an empty string to clear it). If `cleanup_pending` is positive, a prior working file was locked. The next revision retries its cleanup.
 
 **document add:** `kind` is resume, cover_letter, or other; `source_path` is an existing file; `title`; optional `tailoring_notes`. Supports PDF/DOCX/TXT/MD/HTML. Copies the exact file into the job's documents folder. Used for externally prepared documents, exported PDFs, and applications submitted before starting this workspace. Import only trusted documents; HTML documents may contain active content.
 
 **submission record:** `resume_id`, optional `attachment_ids` (document IDs for cover letters or other attachments), `evidence_type` (`user_reported` or `observed_confirmation`), nonempty `evidence`, optional ISO date/time `at`, next_action, next_action_date. Copies the selected files into a unique submitted archive, computes SHA-256 hashes, records evidence, and marks applied. It never sends an application. A second submission record is rejected to protect the original archive. If a reapplication is a genuinely distinct attempt, create a new opportunity with a distinct listing identity and note its relationship to the prior attempt.
 
-For a generated resume, `submission record` archives the primary DOCX by default. Set `resume_format` to the actual format used if it was a different generated file. For an externally exported or edited file, import the exact bytes with `document add` and use its ID. Older records without a primary format retain their historical archive behavior unless a format is specified.
+New submission records archive a single PDF resume, plus the explicitly selected supporting documents. The archived PDF uses the candidate/company filename. Historical submission archives retain their original bytes and formats. To record a PDF that was edited or rendered elsewhere, import the actual file and select its document ID.
 
 ## Research and correspondence
 
@@ -104,6 +108,6 @@ node scripts/career.mjs memory set --file workspace/handoff.json
 
 ## Rebuild and refresh
 
-`build` validates records and writes INDEX.md, index.json, dashboard.html, and dashboard-version.json. Use the launcher (`npm run open`) or foreground server (`npm start`) for automatic refresh and persistent stars/notes. The selected job, view, and filters survive refresh. Automatic refresh pauses while an unsaved career note is present; the draft is retained in the current browser session. Directly opened HTML files are view-only snapshots and can be manually reloaded after a build.
+`build` validates records and writes INDEX.md, index.json, dashboard.html, and dashboard-version.json. The launcher, `npm start`, and `npm run open` open a standalone file. For the optional foreground server, use `npm run live`. Directly opened HTML files are view-only snapshots and can be manually reloaded after a build.
 
 The server accepts GET/HEAD and a restricted POST endpoint for favorites and brain-dump notes, with same-origin/token checks. It binds to loopback, blocks dot-directories and escaping paths, and never executes agent tasks. It is a local personal app, not a hosted multi-user service.

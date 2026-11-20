@@ -2,6 +2,8 @@
 
 Read `AGENTS.md` for operating rules, then `workspace/INDEX.md` for the current state. This file is the stable navigation map, not the candidate's biography. All personal memory belongs inside the ignored `workspace/` folder.
 
+For changes to onboarding, the dashboard, or distribution, read [Product direction and change history](docs/PRODUCT-DIRECTION.md).
+
 ## Session entry
 
 1. Read `workspace/INDEX.md` and `workspace/memory.json`. If missing, run `node scripts/career.mjs init`.
@@ -24,7 +26,7 @@ Read `AGENTS.md` for operating rules, then `workspace/INDEX.md` for the current 
 | Prepared documents | Job's `documents/` | `resume create`, `document add` |
 | Exact submitted materials and evidence | Job's `submitted/` plus submission record | `submission record` |
 | Short session handoff | `workspace/memory.json` | `memory set` |
-| Readable and machine-readable navigation | `workspace/INDEX.md`, `workspace/index.json` | Generated automatically; do not hand-edit |
+| Readable and machine-readable navigation | `workspace/INDEX.md`, `workspace/index.json` | Generated automatically with current/submitted resume links and the template handoff; do not hand-edit |
 
 Use `node scripts/career.mjs <command> --file workspace/<payload>.json`; add `--id job_<id>` for job-specific writes. See `docs/COMMANDS.md` for full payloads. Every helper mutation rebuilds the indexes and dashboard.
 

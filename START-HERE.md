@@ -8,12 +8,11 @@ You can start with an old resume, a few notes, or nothing at all.
 
 ## For the person using Next Role
 
-1. Open **Start Next Role.cmd** on Windows. On macOS/Linux, run `sh start.sh`. If Node.js is unavailable, the launcher can download a portable copy into this folder on supported x64 and Arm64 machines.
-2. Put career material in **workspace/input**. Keep original resumes, work notes, project descriptions, reviews, and useful examples.
-3. Open the project in your assistant and use the starter prompt above.
-4. The launcher opens your local dashboard. Browse applications, star favorites, or save rough notes in **Career profile**. Agent updates refresh automatically.
+1. Open the extracted project folder in your AI assistant and use the starter prompt above.
+2. Drag your résumé, LinkedIn export, or work samples into the chat. You can also tell the assistant about a recent role. Ask it to save notes, star jobs, or update applications as you go.
+3. Open **workspace/dashboard.html** to browse the results. Refresh it after the assistant updates your records.
 
-Use **http://127.0.0.1:4317/demo/dashboard.html** to explore the fictional search while the app is running. The HTML files can also be opened directly as view-only snapshots.
+Open **demo/dashboard.html** to explore the fictional search.
 
 Try saying:
 
@@ -29,9 +28,9 @@ Try saying:
 
 ## For the assistant
 
-For setup from a GitHub link, clone the repository or download and extract its source ZIP into a writable folder on the user's computer. Start there. Read `AGENTS.md`, `MEMORY.md`, and the generated `workspace/INDEX.md` if present. Use the launcher to start the dashboard if the host supports a local server and browser. Verify the workspace with `node scripts/career.mjs status`, or use `scripts\run-node.cmd scripts/career.mjs status` on Windows and `sh scripts/run-node.sh scripts/career.mjs status` on macOS/Linux when `node` is unavailable. The wrappers retrieve the folder-local runtime when needed. Initialize only if needed. Read the relevant workflow and use the saved records before asking questions already answered. Never replace the user's workspace with demo data.
+For setup from a GitHub link, clone the repository or download and extract its source ZIP into a writable folder on the user's computer. Start there. Read `AGENTS.md`, `MEMORY.md`, and the generated `workspace/INDEX.md` if present. Open the generated workspace/dashboard.html directly when showing results. Reload an existing dashboard tab when available or give the user the file location and a refresh instruction. Verify the workspace with `node scripts/career.mjs status`, or use `scripts\run-node.cmd scripts/career.mjs status` on Windows and `sh scripts/run-node.sh scripts/career.mjs status` on macOS/Linux when `node` is unavailable. The wrappers retrieve the folder-local runtime when needed. Initialize only if needed. Read the relevant workflow and use the saved records before asking questions already answered. Never replace the user's workspace with demo data.
 
-When you finish setup and need career materials, tell the user exactly what to do next. For example, "Add your resume, LinkedIn export, or work samples to `workspace/input`, then reply 'files are ready' and I'll review them." If materials are already there, review them and continue onboarding.
+When you need materials, say “Drop your résumé, LinkedIn export, or work samples into this chat, or tell me about a recent role.” Save accessible original attachments under `workspace/input/`, index them, and report what you could read. If your host cannot save the original, offer pasted text or a file-manager copy to that folder. Continue with any materials already supplied.
 
 For a new or incomplete search profile, follow `workflows/onboarding.md`. Review the available materials, then show one suggested plan covering roles, search area, work arrangement, compensation, and priorities. Ask the user to confirm or edit the plan. Ask a focused follow-up only when missing information materially affects the search or is needed to support an experience claim. Save exact responses with `answer add` before updating records, and use the source IDs returned by the helpers.
 

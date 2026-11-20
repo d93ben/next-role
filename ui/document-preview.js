@@ -232,7 +232,7 @@
         return readLimited(response.body, maxDocumentSize);
       });
     } else if (format === 'docx' && !fallback) {
-      status.textContent = 'Choose the Word file for this preview, or open Next Role with the launcher.';
+      status.textContent = 'Choose the Word file to preview it here.';
       picker.parentElement.hidden = false;
     } else {
       status.textContent = format === 'docx' ? 'Browser copy of the résumé' : '';

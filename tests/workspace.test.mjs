@@ -124,14 +124,25 @@ test('invalid states and invented resume source IDs are rejected',t=>{
 });
 test('resume to submission to interview works and submitted bytes remain frozen',t=>{
   const {root,job,payload,experience}=fixture(t);const doc=resume(root,job.id,payload);
-  assert.deepEqual(doc.files.map(f => f.format), ['docx', 'html', 'txt', 'json']);
+  assert.deepEqual(doc.files.map(f => f.format), ['pdf', 'docx', 'html', 'txt', 'json']);
+  assert.equal(doc.offer_template_in_chat, true);
   mutate(root,'job update',{status:'ready'},job.id);
   mutate(root,'submission record',{resume_id:doc.id,evidence_type:'user_reported',evidence:'I submitted this version today.'},job.id);
   mutate(root,'job update',{status:'interview'},job.id);
   const submitted=load(root).jobs[0].submission;const archived=inside(root,submitted.files[0].path);const bytes=fs.readFileSync(archived);
-  assert.deepEqual(submitted.files.map(f => f.format), ['docx']);
+  assert.deepEqual(submitted.files.map(f => f.format), ['pdf']);
+  assert.equal(path.basename(archived), 'jamie_example_acme.pdf');
+  assert.deepEqual(bytes, fs.readFileSync(inside(root, doc.files[0].path)));
   mutate(root,'experience update',{...experience,accomplishments:[{...experience.accomplishments[0],text:'Updated current wording.'}]});
-  resume(root,job.id,payload);assert.deepEqual(fs.readFileSync(archived),bytes);assert.equal(validate(root).ok,true);
+  mutate(root, 'profile set', {resume_template_offered: true});
+  const revision = resume(root,job.id,payload);
+  assert.equal(revision.offer_template_in_chat, false);
+  assert.deepEqual(load(root).jobs[0].documents.map(d => d.id), [revision.id]);
+  for (const file of doc.files) assert.equal(fs.existsSync(inside(root, file.path)), false);
+  build(root);
+  const index = fs.readFileSync(path.join(root,'INDEX.md'), 'utf8');
+  assert.ok(index.includes(revision.files[0].path) && index.includes(submitted.files[0].path));
+  assert.deepEqual(fs.readFileSync(archived),bytes);assert.equal(validate(root).ok,true);
   assert.throws(()=>mutate(root,'submission record',{resume_id:doc.id,evidence_type:'user_reported',evidence:'Again'},job.id),/already recorded/);
   fs.appendFileSync(archived,'tampered');assert.throws(()=>validate(root),/submitted document was changed/);
 });
@@ -163,15 +174,32 @@ test('Word output uses supported public wording and keeps the source comparison 
   assert.match(xml, /Jamie Example/);
   assert.match(xml, /Built a tracker for planning &amp; coordination\./);
   assert.doesNotMatch(xml, /three supervisors|Emphasizes|Prioritized coordination/);
-  mutate(root, 'submission record', {resume_id: doc.id, resume_format: 'txt', evidence_type: 'user_reported', evidence: 'Text file uploaded.'}, job.id);
-  assert.deepEqual(load(root).jobs[0].submission.files.map(f => f.format), ['txt']);
+  assert.throws(() => mutate(root, 'submission record', {resume_id: doc.id, resume_format: 'txt', evidence_type: 'user_reported', evidence: 'Text file uploaded.'}, job.id), /PDF/);
 });
 test('actual imported resume and cover-letter bytes are archived',t=>{
-  const {root,job}=fixture(t);const source=path.join(root,'input','actual.pdf');fs.writeFileSync(source,'Exact test PDF bytes');
+  const {root,job,payload}=fixture(t);const source=path.join(root,'input','actual.pdf');
+  const draft=resume(root,job.id,payload);
+  const original=fs.readFileSync(inside(root,draft.files[0].path));fs.writeFileSync(source,original);
   mutate(root,'document add',{kind:'resume',source_path:source,title:'Actual PDF'},job.id);
   const cover=path.join(root,'input','letter.txt');fs.writeFileSync(cover,'Exact cover letter');mutate(root,'document add',{kind:'cover_letter',source_path:cover,title:'Letter'},job.id);
-  const docs=load(root).jobs[0].documents;mutate(root,'submission record',{resume_id:docs[0].id,attachment_ids:[docs[1].id],evidence_type:'observed_confirmation',evidence:'Confirmation receipt recorded.'},job.id);
-  const archived=load(root).jobs[0].submission.files;assert.equal(archived.length,2);assert.equal(fs.readFileSync(inside(root,archived[0].path),'utf8'),'Exact test PDF bytes');assert.equal(validate(root).ok,true);
+  const docs=load(root).jobs[0].documents;mutate(root,'submission record',{resume_id:docs[1].id,attachment_ids:[docs[2].id],evidence_type:'observed_confirmation',evidence:'Confirmation receipt recorded.'},job.id);
+  const archived=load(root).jobs[0].submission.files;assert.equal(archived.length,2);assert.deepEqual(fs.readFileSync(inside(root,archived[0].path)),original);assert.equal(validate(root).ok,true);
+});
+test('custom template uses supplied PDF bytes and keeps the original, even after a failed revision', t => {
+  const {root,job,payload} = fixture(t);
+  const initial = resume(root, job.id, payload);
+  const originalPdf = fs.readFileSync(inside(root, initial.files[0].path));
+  fs.mkdirSync(path.join(root, 'templates'), {recursive:true});
+  const template = path.join(root, 'templates', 'personal.pdf');
+  fs.writeFileSync(template, originalPdf);
+  mutate(root, 'profile set', {given_name:'Jamie Lee',family_name:'De Silva',resume_template_path:'templates/personal.pdf'});
+  assert.throws(() => resume(root, job.id, payload), /pdf_path/);
+  assert.deepEqual(load(root).jobs[0].documents.map(d => d.id), [initial.id]);
+  const replacement = resume(root, job.id, {...payload,pdf_path:template});
+  assert.equal(replacement.offer_template_in_chat, false);
+  assert.equal(path.basename(replacement.files[0].path),'jamie_lee_de_silva_acme.pdf');
+  assert.deepEqual(fs.readFileSync(inside(root,replacement.files[0].path)),originalPdf);
+  assert.deepEqual(fs.readFileSync(template),originalPdf);
 });
 test('interview reports need sources; predictions remain distinct',t=>{
   const {root,job,experience}=fixture(t);assert.throws(()=>mutate(root,'research add',{kind:'reported_question',title:'Question',content:'Claimed report'},job.id),/requires|require/);
@@ -225,4 +253,14 @@ test('release ZIP can be extracted and validated immediately, including an empty
     if(name.endsWith('/'))fs.mkdirSync(dest,{recursive:true});else{fs.mkdirSync(path.dirname(dest),{recursive:true});fs.writeFileSync(dest,content);}offset=start+size;
   }
   const app=path.join(extracted,'next-role');const personal=path.join(app,'workspace');assert.equal(validate(personal).ok,true);assert.equal(load(personal).jobs.length,0);assert.equal(load(personal).profile.name,'');assert.deepEqual(load(personal).brain_dump,[]);assert.equal(validate(path.join(app,'demo')).ok,true);assert.ok(fs.existsSync(path.join(app,'MEMORY.md')));assert.ok(fs.existsSync(path.join(personal,'INDEX.md')));
+  const dashboard = path.join(personal, 'dashboard.html');
+  const before = fs.readFileSync(dashboard, 'utf8');
+  const launch = spawnSync(process.execPath, ['scripts/launch.mjs', '--no-open'], {
+    cwd: app, encoding: 'utf8', env: { ...process.env, PORT: 'invalid' }
+  });
+  assert.equal(launch.status, 0, launch.stderr);
+  assert.match(launch.stdout, /^file:\/\/\/.*\/workspace\/dashboard\.html\s*$/);
+  assert.equal(fs.readFileSync(dashboard, 'utf8'), before);
+  assert.ok(!before.includes('career-intake-template'));
+  assert.ok(!fs.existsSync(path.join(personal, '.server.log')));
 });

@@ -4,7 +4,7 @@
 
 The agent host owns conversation, search, reasoning, connected tools, and authorization for external actions. Next Role supplies instructions, a durable record format, validation/helpers, resume rendering, and a local dashboard. There is no embedded model runtime, task runner, cloud database, or email sender.
 
-The agent performs work → helpers save records → helpers validate and rebuild → the dashboard refreshes. Users filter, browse, inspect, open documents, star opportunities, and save raw career notes in the dashboard. They request work in their IDE/host.
+The agent saves and validates records through the helpers, which regenerate the HTML dashboard. Open the file directly and reload it after a change. Users attach career materials, request job searches, and manage favorites and notes in chat. The optional live server supports the older dashboard write controls.
 
 ## Records (schema version 1)
 
@@ -25,7 +25,7 @@ workspace/
     job_<id>/
       application.json           listing, status, favorite, documents, research,
                                  messages, notes, submission, history
-      documents/                 versioned drafts/imported documents
+      documents/                 current generated resume and imported documents
       submitted/submission_<id>/ exact selected files with stored hashes
   .backups/                      previous versions of changed record files
   dashboard.html                 generated, self-contained display snapshot
@@ -66,7 +66,7 @@ The release script uses an explicit allowlist of application source and document
 
 - File reading, browser research, email connections, and submission depend on the host. Basic capability fallback is described in the workflows; this is not a universal plugin installer.
 - TXT/MD/CSV/JSON input text is indexed directly. Rich documents require extraction through the agent's available tools.
-- Native resume export is HTML and TXT with an evidence JSON snapshot. PDF uses the browser print flow; DOCX/PDF from other tools can be imported.
+- Resume creation produces a named submission PDF, editable DOCX, HTML, TXT and an evidence snapshot. A template-rendered PDF can be supplied by the agent. The workspace index links the working and submitted copies. Superseded working files are retained under local recovery backups.
 - No automated account login, background search schedule, ranking algorithm, or mass application service is included.
 - Dashboard writes are limited to favorites and original career notes. Agent task controls are absent. A static HTML file supports viewing only.
 - Core records are local; the user's chosen AI provider may process records the agent reads.

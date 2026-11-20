@@ -1,5 +1,15 @@
 # Organize correspondence
 
+## Optional email review after a job search
+
+Start a mailbox search only when the user asks for it or accepts the offer. Use the past three calendar months through today in the user's local time by default. Use a requested date as a single day, “since” as a start date through today, and an explicit range with both endpoints included. State the dates covered.
+
+Use read-only search in the available mail connection for recruiter outreach, application receipts and decisions, interview scheduling, and offers. Include leads beyond the shortlist. Check message dates within threads and read enough context to identify the role, latest update, and outstanding action. Group each conversation once. Report employer or sender, role if known, date, next action, explicit deadline, and a thread link when available. Say when there are no relevant results or coverage is incomplete. If mailbox access is unavailable, offer to review pasted or attached messages.
+
+The review produces a summary in chat. Offer to save useful threads to matching applications. Follow the recording steps below if requested.
+
+## Record or respond to a message
+
 1. Use an available email connector or browser only within the user's request. Otherwise ask the user to paste or save a message. Never assume email access exists.
 2. Identify the exact application by employer, role, contacts, and thread context. If ambiguous, ask before attaching a message to the wrong role.
 3. Save relevant message text, contact, subject, actual received/sent date, source, and an external message ID when available with `message add`. Existing external IDs prevent duplicates. Avoid importing unrelated mail or unnecessary sensitive details.

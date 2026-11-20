@@ -6,32 +6,24 @@ The assistant does the research and writing. The HTML dashboard gives you a calm
 
 ## Quick start
 
-Share this repository link with someone who has an AI assistant that can download files and run commands on their computer. They can give their assistant this prompt:
+Give your AI assistant the GitHub link and this prompt.
 
-> Download https://github.com/d93ben/next-role into a local folder, read START-HERE.md, and set up Next Role for me. Use the launcher for my operating system and show me where to add my career materials.
+> Set up https://github.com/d93ben/next-role in a local folder, read START-HERE.md, and help me start my job search. Ask me for my résumé in this chat.
 
-For manual setup, clone the repository or download and extract its source ZIP. Then run the launcher from the extracted folder.
+Drag your résumé, LinkedIn export, notes, or work samples into that chat. You can also start by describing a recent role. Ask the assistant to find jobs, save favorites, record updates, or prepare you for an interview.
 
-- **Windows:** double-click `Start Next Role.cmd`.
-- **macOS/Linux:** run `sh start.sh`.
-- **From a terminal:** `npm run open` starts the local app and opens your browser.
-
-The launcher uses Node.js 20 or newer if it is available. On Windows, macOS and Linux x64 or Arm64, it can also download a pinned Node.js 24 LTS runtime, verify its SHA-256 checksum, and cache its executable and license in `.next-role-runtime/`. The first download needs internet access. The cached runtime travels with the folder when moved to a compatible machine. Viewing a generated dashboard from disk only needs a browser.
-
-Add career material to `workspace/input`. Tell your assistant:
-
-> Read START-HERE.md, review the materials in workspace/input, and suggest a job search profile I can confirm or edit.
+To browse a packaged release, extract the ZIP and open **workspace/dashboard.html**. On Windows, **Start Next Role.cmd** also opens the file. On macOS or Linux, use **sh start.sh**. Viewing the prebuilt dashboard requires only a browser. A source checkout needs a first build. The launcher can use an existing Node 20+ runtime or download a checksum-verified portable runtime into the project for the helpers.
 
 Your assistant recommends roles and a starting search area from your materials and highlights assumptions about work arrangement, pay, and priorities. Review the suggestions together and change anything that feels off. A few career notes or a description of a recent project are enough to get started.
 
 ## What is included
 
 - A searchable applications table with status, favorites, filters, next steps, and direct original-listing links. The dark interface uses bright text and distinct status colors. Each row opens a full-page job view with a right sidebar for links, submitted materials, prepared files, and emails.
-- A career profile with a brain dump that saves original notes for the agent to organize.
+- A career profile that displays original notes saved through chat.
 - Original answers, source-backed career facts, preferences, open questions, and indexed input files.
 - A separate record for every opportunity, including a saved listing, fit explanation, gaps, notes, next actions, dates, and activity history.
 - An evidence match percentage for assessed roles, with a per-criterion breakdown, a highest-match sort, and scores in the assistant's search summaries.
-- A finished, editable Word resume for the selected role, plus printable HTML, plain text and an evidence snapshot. The assistant explains significant edits in chat using original wording, tailored wording and the reason for the change. Preparing a role also includes starter interview questions and answer outlines.
+- One current tailored resume per role, with a submission-ready `firstname_lastname_company.pdf`, an editable Word copy and supporting files. The first delivery invites you to drop a preferred template into chat. The assistant explains significant edits in chat using original wording, tailored wording and the reason for the change. Preparing a role also includes starter interview questions and answer outlines.
 - Import existing PDF, DOCX, HTML, Markdown, or text application documents; archive the exact submitted resume and selected attachments.
 - An interview coach in your assistant chat that researches employer guides and candidate reports, builds answers from your experience, and runs one-question-at-a-time mock interviews with feedback. Try “Research questions for [role] at [company] and coach me through a mock interview.”
 - Correspondence records and unsent reply drafts, supplied through the assistant's email tools or pasted messages.
@@ -39,13 +31,13 @@ Your assistant recommends roles and a starting search area from your materials a
 
 ## How the dashboard works
 
-The agent saves local records and rebuilds the dashboard and indexes. The dashboard presents an applications table, full-page job details, and career profile. Users can star jobs and save rough career notes. These two actions write to the same workspace files that the agent reads; they do not start an agent task. Search, tailoring, status changes, and conversation happen in the IDE or agent host.
+The agent saves local records and regenerates the HTML after each update. Refresh an open tab to see the latest jobs, favorites, notes, and documents. Open `demo/dashboard.html` to explore the fictional example.
 
-The launcher starts a small local server and opens the personal dashboard. Agent updates refresh automatically, preserving the current page and filters. Unsaved notes are retained in the current browser session and pause automatic refresh while you type. Saved notes are durable workspace records. The separate fictional demo is at `http://127.0.0.1:4317/demo/dashboard.html`.
+After a job search, the assistant offers to check job-related email from the past three months or a date range you specify. Accept in chat to receive a summary of recruiter outreach, application updates, and deadlines.
 
 Click a document card under **Prepared files** or **Submitted materials** to preview it. Word and PDF source files also open in the preview from **Career profile**. The browser renders Word text, formatting, lists and tables locally. Complex Word layouts and page breaks can differ from the original. PDF uses your browser's built-in viewer. Use **Download** to keep the original file. In a dashboard opened directly from disk, generated resumes can use their printable HTML, and standalone Word files can be selected in the preview.
 
-For a foreground server, use `npm start` and stop it with Ctrl+C. The launcher keeps the local server running after its window closes and reuses it on subsequent launches. Directly opened HTML files remain portable, view-only snapshots; use the launcher for stars and note saving. There is no built-in search engine, email connection, or chatbot.
+Developers can run the optional local server with `npm run live` for live refresh and the legacy favorite and note controls.
 
 ## Assistant compatibility
 
@@ -70,6 +62,6 @@ npm start
 npm run package
 ```
 
-There are no npm dependencies and no install step. `npm run package` produces `release/next-role-v1.1.1.zip` from an explicit source allowlist, a fresh empty personal workspace, and newly generated fictional examples. It excludes existing personal data, credentials, test output, and backups.
+There are no npm dependencies and no install step. `npm run package` produces `release/next-role-v1.3.0.zip` from an explicit source allowlist, a fresh empty personal workspace, and newly generated fictional examples. It excludes existing personal data, credentials, test output, and backups.
 
 See `docs/COMMANDS.md` for commands, `docs/ARCHITECTURE.md` for storage contracts, and `docs/QA.md` for verification and current limitations. MIT licensed.
