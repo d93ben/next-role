@@ -4,14 +4,14 @@ Open this folder in an AI assistant with permission to read and write project fi
 
 > Read START-HERE.md and help me start my job search. Use the career materials I share in this chat to suggest a search profile I can confirm or edit.
 
-You can start with an old resume, a few notes, or nothing at all.
+One document or a few sentences about your work is enough to get started.
 
 If you downloaded the desktop app, open it once. Choose **File → Show workspace folder**, then give your AI assistant access to the enclosing folder where the app placed these instructions. You can star a job and save career notes directly in the app. Saved changes from chat appear automatically. For the plain HTML dashboard, refresh the browser after a save.
 
 ## For the person using Next Role
 
 1. Open the extracted project folder in your AI assistant and use the starter prompt above.
-2. Drag your résumé, LinkedIn export, or work samples into the chat. You can also tell the assistant about a recent role. Ask it to save notes, star jobs, or update applications as you go.
+2. Drag any career materials into the chat. Current or past résumés, past cover letters, commendations, performance reviews, LinkedIn exports, and work samples are all welcome. You can also tell the assistant about a recent role. Ask it to save notes, star jobs, or update applications as you go.
 3. Open **workspace/dashboard.html** to browse the results. Refresh it after the assistant updates your records.
 4. When you ask to apply, the assistant prepares the materials and stops before submission. Review the application and click **Submit** yourself, or send the draft email if the employer accepts applications by email.
 
@@ -35,7 +35,7 @@ For setup from a GitHub link, check the release assets and choose the build for 
 
 On first setup, show the personal dashboard once. If the user already attached a file or described their work, use it immediately. Otherwise give the first-run invitation in chat:
 
-> Your personal dashboard is ready. Drag your résumé or LinkedIn export into this chat, or tell me about your most recent role. I'll use that to suggest a search profile.
+> Your personal dashboard is ready. Drag any career materials into this chat. A current or past résumé, a past cover letter, a commendation, a LinkedIn export, or a work sample is enough to start. You can also tell me about a recent role. I’ll use what you share to suggest roles that fit.
 
 Save accessible attachments under `workspace/input/` yourself and run `intake`. Tell the user which files you could read. If an attachment is inaccessible, ask them to paste its text into the same conversation.
 

@@ -11,7 +11,7 @@ This project is an agent-operated job-search workspace. The user talks to you; t
 
 In a desktop distribution, use the app's `--cli` entry point for every workspace command, including the initial status check. See `START-HERE.md` for Windows and Mac examples. Use the user's workspace with `--workspace`. The desktop app provides its own runtime. In a source or HTML distribution, if a command starts with `node` and the host lacks Node.js 20 or newer, substitute `scripts\run-node.cmd` on Windows or `sh scripts/run-node.sh` on macOS/Linux. Run the command from the project root.
 
-For a first setup, show the user's personal dashboard and use the `onboarding_message` from `init` or `status` when the chat has no career materials yet. Invite them to drag their résumé or LinkedIn export directly into this chat, or describe a recent role. If they already attached a file or described their work, process it and give them the next relevant step. The assistant handles local filing and indexing. Leave folder paths for technical questions.
+For a first setup, show the user's personal dashboard and use the `onboarding_message` from `init` or `status` when the chat has no career materials yet. Invite any career materials directly in chat, including current or past résumés, past cover letters, commendations, LinkedIn exports, and work samples. One item or a description of a recent role is enough. If they already attached a file or described their work, process it and give them the next relevant step. The assistant handles local filing and indexing. Leave folder paths for technical questions.
 
 ## Hand the conversation back clearly
 

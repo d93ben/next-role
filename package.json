@@ -1,6 +1,6 @@
 {
   "name": "next-role",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "private": true,
   "description": "A portable, agent-operated job search workspace with a local HTML dashboard.",
   "type": "module",

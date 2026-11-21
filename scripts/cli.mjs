@@ -6,7 +6,7 @@ function firstRunHandoff(state) {
   if (state.meta.demo || state.profile.updated_at || state.profile.name || state.intake.length ||
       state.experiences.length || state.answers.length || state.brain_dump.length || state.jobs.length ||
       state.questions.length || state.memory.current_focus) return {};
-  return { onboarding_message: "Your personal dashboard is ready. Drag your résumé or LinkedIn export into this chat, or tell me about your most recent role. I'll use that to suggest a search profile." };
+  return { onboarding_message: "Your personal dashboard is ready. Drag any career materials into this chat. A current or past résumé, a past cover letter, a commendation, a LinkedIn export, or a work sample is enough to start. You can also tell me about a recent role. I’ll use what you share to suggest roles that fit." };
 }
 
 export function runCareer(args, defaultWorkspace = path.join(ROOT, 'workspace')) {

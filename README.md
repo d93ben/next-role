@@ -14,9 +14,9 @@ Use **File → Show workspace folder** to locate your records. Move that entire 
 
 Give your AI assistant the GitHub link and this prompt.
 
-> Set up https://github.com/d93ben/next-role in a local folder, read START-HERE.md, and help me start my job search. Ask me for my résumé in this chat.
+> Set up https://github.com/d93ben/next-role in a local folder, read START-HERE.md, and help me start my job search. Ask me what career materials I’d like to share in this chat.
 
-Drag your résumé, LinkedIn export, notes, or work samples into that chat. You can also start by describing a recent role. Ask the assistant to find jobs, save favorites, record updates, or prepare you for an interview.
+Drag any career materials into that chat. A current or past résumé, a past cover letter, a commendation, a performance review, a LinkedIn export, or a work sample is enough. You can also paste your LinkedIn profile text or describe a recent role. Ask the assistant to find jobs, save favorites, record updates, or prepare you for an interview.
 
 To browse a packaged release, extract the ZIP and open **workspace/dashboard.html**. On Windows, **Start Next Role.cmd** also opens the file. On macOS or Linux, use **sh start.sh**. Viewing the prebuilt dashboard requires only a browser. A source checkout needs a first build. The launcher can use an existing Node 20+ runtime or download a checksum-verified portable runtime into the project for the helpers.
 

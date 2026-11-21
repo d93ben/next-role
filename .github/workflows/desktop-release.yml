@@ -106,7 +106,7 @@ jobs:
           cat > "$RUNNER_TEMP/release-notes.md" <<'NOTES'
           Open Next Role on Windows or Mac to star jobs, save notes and see updates from your assistant. The desktop app reads your local workspace and runs without a server or a separate Node installation. The smaller HTML workspace ZIP is also included.
 
-          On first setup, your assistant will show your personal dashboard and invite you to drop a résumé or LinkedIn export into the chat. You can also describe a recent role.
+          On first setup, your assistant will show your personal dashboard and invite you to drop any career materials into the chat. A résumé, previous cover letter, commendation, LinkedIn export, work sample, or a description of a recent role is enough.
 
           Keep the workspace folder when updating the app. To switch computers, copy that folder and open it with the matching platform download.
           NOTES

@@ -30,7 +30,7 @@ try {
   page.on('pageerror',error => console.error('Dashboard error:',error.message));
   page.on('console',msg => { if (['warning','error'].includes(msg.type())) console.error('Dashboard:',msg.text()); });
   await page.getByText('Your shortlist starts here', {exact:true}).waitFor();
-  await page.getByText(/drop your resume or linkedin export into your ai chat/i).waitFor();
+  await page.getByText(/past cover letter.*commendation.*LinkedIn export.*work sample in your AI chat/i).waitFor();
   assert.equal(await page.getByRole('link',{name:/demo/i}).count(),0);
   assert.equal(fs.existsSync(path.join(path.dirname(root),'demo')),false);
   const job = cli(['job','add','--file',payload('job',{company:'QA Example',title:'Temporary role',listing_text:'Fictional test'})]).result;

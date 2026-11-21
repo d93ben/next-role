@@ -278,14 +278,17 @@ test('first setup invites chat attachments until career material has been saved'
   const first = command('init');
   assert.equal(first.dashboard, path.join(root, 'dashboard.html'));
   assert.match(first.result.onboarding_message, /drag .* into this chat/i);
-  assert.match(first.result.onboarding_message, /tell me about your most recent role/i);
+  for (const material of ['past résumé', 'past cover letter', 'commendation', 'LinkedIn export', 'work sample']) {
+    assert.ok(first.result.onboarding_message.includes(material), material);
+  }
+  assert.match(first.result.onboarding_message, /tell me about a recent role/i);
   assert.equal(command('status').onboarding_message, first.result.onboarding_message);
   assert.deepEqual(fs.readdirSync(path.join(root, 'input')), []);
-  fs.writeFileSync(path.join(root, 'input', 'resume.txt'), 'I coordinated projects.');
+  fs.writeFileSync(path.join(root, 'input', 'commendation.txt'), 'Thank you for coordinating the project handoff.');
   assert.equal(command('intake').result.length, 1);
   assert.equal(command('init').result.onboarding_message, undefined);
   assert.equal(command('status').onboarding_message, undefined);
-  assert.equal(command('status').sources[0].name, 'resume.txt');
+  assert.equal(command('status').sources[0].name, 'commendation.txt');
 });
 test('release ZIP entries preserve content, Unicode paths, and CRC',()=>{
   const bytes=Buffer.from('Useful content ✓');const zip=zipEntries([{name:'next-role/notes/é.txt',bytes}]);assert.equal(zip.readUInt32LE(0),0x04034b50);const nameLen=zip.readUInt16LE(26);const size=zip.readUInt32LE(18);assert.equal(zip.subarray(30,30+nameLen).toString(),'next-role/notes/é.txt');assert.deepEqual(inflateRawSync(zip.subarray(30+nameLen,30+nameLen+size)),bytes);assert.equal(zip.readUInt32LE(14),crc32(bytes));assert.equal(zip.readUInt32LE(zip.length-22),0x06054b50);
