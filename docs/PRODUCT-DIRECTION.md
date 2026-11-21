@@ -45,5 +45,6 @@ Offer portable Windows and Mac apps for users who want automatic refresh, favori
 | 2026-11-20 | Added Windows portable and universal Mac desktop builds, direct favorites and career notes, automatic refresh, and a bundled agent CLI. A shared workspace can move between platforms. | v1.4.0 desktop build. Apple notarization requires publisher credentials. |
 | 2026-11-20 | A first-time user was told to copy files into a folder and was shown a second dashboard. First setup now opens one personal dashboard and asks for career materials in the same chat. The assistant files the attachments. | v1.4.1 |
 | 2026-11-20 | Broadened the initial invitation after user feedback. Any career material or a description in chat can start onboarding, including a past cover letter or commendation on its own. | v1.4.2 |
+| 2026-11-20 | Use the résumé location as the default search area and its local currency for a pay target given without one. Explicit area and currency preferences take precedence. | Prepared for v1.4.3. |
 
 Append a dated row when a product decision changes or ships. Record the reason and distinguish agreed direction, local drafts, and released behavior.

@@ -20,7 +20,7 @@ Drag any career materials into that chat. A current or past résumé, a past cov
 
 To browse a packaged release, extract the ZIP and open **workspace/dashboard.html**. On Windows, **Start Next Role.cmd** also opens the file. On macOS or Linux, use **sh start.sh**. Viewing the prebuilt dashboard requires only a browser. A source checkout needs a first build. The launcher can use an existing Node 20+ runtime or download a checksum-verified portable runtime into the project for the helpers.
 
-Your assistant recommends roles and a starting search area from your materials and highlights assumptions about work arrangement, pay, and priorities. Review the suggestions together and change anything that feels off. A few career notes or a description of a recent project are enough to get started.
+Your assistant recommends roles from your materials and uses the location on your résumé as your starting search area. If you give a pay target without a currency, it uses the local currency for that search area. You can specify a different area or currency at any time.
 
 ## What is included
 
