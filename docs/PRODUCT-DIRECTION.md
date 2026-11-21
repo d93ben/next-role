@@ -14,7 +14,7 @@ The assistant invites the user to drop career files into the chat. A current or 
 
 When the host can access the original attachments and write local files, the assistant saves them under `workspace/input/` and indexes them with the existing intake helper. If the host cannot access the attachment, the assistant asks the user to paste the text in chat. The assistant confirms which materials it actually saved and was able to review.
 
-The user's résumé template is a workspace-wide preference. The assistant reuses it automatically for each role and revision. The first résumé delivery includes a template invitation only when the user has neither supplied a template nor received the invitation. Later uploads become the active template only when the user asks to switch.
+An explicit request to use a file as the résumé layout sets a workspace-wide preference. The assistant reuses it automatically for each role and revision. The first résumé delivery includes a template invitation only when the user has neither supplied a template nor received the invitation. Later uploads become the active template only when the user asks to switch.
 
 ## The dashboard shows saved work
 
@@ -45,6 +45,7 @@ Offer portable Windows and Mac apps for users who want automatic refresh, favori
 | 2026-11-20 | Added Windows portable and universal Mac desktop builds, direct favorites and career notes, automatic refresh, and a bundled agent CLI. A shared workspace can move between platforms. | v1.4.0 desktop build. Apple notarization requires publisher credentials. |
 | 2026-11-20 | A first-time user was told to copy files into a folder and was shown a second dashboard. First setup now opens one personal dashboard and asks for career materials in the same chat. The assistant files the attachments. | v1.4.1 |
 | 2026-11-20 | Broadened the initial invitation after user feedback. Any career material or a description in chat can start onboarding, including a past cover letter or commendation on its own. | v1.4.2 |
-| 2026-11-20 | Use the résumé location as the default search area and its local currency for a pay target given without one. Explicit area and currency preferences take precedence. | Prepared for v1.4.3. |
+| 2026-11-20 | Use the résumé location as the default search area and its local currency for a pay target given without one. Explicit area and currency preferences take precedence. | v1.4.3 |
+| 2026-11-20 | An explicit layout choice selects an uploaded template. The assistant can fill a DOCX copy and export it to PDF in the background without Word or desktop control. | Prepared for v1.4.4. |
 
 Append a dated row when a product decision changes or ships. Record the reason and distinguish agreed direction, local drafts, and released behavior.

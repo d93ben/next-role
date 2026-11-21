@@ -77,7 +77,20 @@ The primary filename uses lowercase given name, family name, and company separat
 
 Supply a checked `pdf_path` to use a template-rendered or externally rendered PDF as the primary file. Supply its `docx_path` for a matching editable file. The default PDF uses standard Western fonts. Use the host's document renderer with suitable fonts for other scripts. If `cleanup_pending` is positive, a prior working file was locked. The next revision retries its cleanup.
 
-The first template can be selected with `profile set` and `{"resume_template_path":"templates/first.docx"}`. Store originals under distinct filenames in `workspace/templates/`. A saved template applies across roles and sessions and suppresses `offer_template_in_chat`. If the helper offers the invitation and you deliver it in chat, record `{"resume_template_offered":true}` once. Leave template fields out of routine profile and intake updates.
+Select a first template with `profile set` and `{"resume_template_path":"templates/first.docx"}` after the user explicitly requests that layout. Store originals under distinct filenames in `workspace/templates/`. A saved template applies across roles and sessions and suppresses `offer_template_in_chat`. If the helper offers the invitation and you deliver it in chat, record `{"resume_template_offered":true}` once. Leave template fields out of routine profile and intake updates.
+
+For a selected DOCX, `node scripts/career.mjs template inspect` lists paragraph IDs and their text in the body, headers and footers, including paragraphs inside tables. The desktop app provides the same command through `--cli`. Give `resume create` the normal evidence-backed résumé payload plus an array like the following. Copy each ID and exact `from` string from the inspection. A string replaces a paragraph, an array repeats its formatting for several paragraphs, and an empty array removes a sample paragraph.
+
+```json
+{
+  "template_edits": [
+    {"id":"document:0","from":"Candidate name","to":"Jamie Example"},
+    {"id":"document:7","from":"Example achievement","to":["First supported achievement","Second supported achievement"]}
+  ]
+}
+```
+
+For structural edits, supply a programmatically filled DOCX as `docx_path` with the normal payload. With a saved template the helper renders the supplied DOCX to PDF automatically. A supplied, verified `pdf_path` still takes precedence when sending finished files. Compare the PDF text and layout against the evidence-backed payload before delivery. The renderer uses local fonts and embedded assets. In source and HTML editions, `NEXT_ROLE_BROWSER` can point to a local Chromium executable. Desktop distributions include the print engine.
 
 When the user asks to use a different template, send both paths in one update, for example `{"replaces_resume_template_path":"templates/first.docx","resume_template_path":"templates/new.docx"}`. The helper checks that the old path is still current. For an explicit return to the default layout, use the same update with an empty new path. A change of role or a new file attachment alone keeps the current selection.
 

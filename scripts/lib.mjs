@@ -4,6 +4,7 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { renderResumeDocx } from './resume-docx.mjs';
 import { readPdf, renderResumePdf, resumeFilename } from './resume-pdf.mjs';
+import { processTemplate } from './template-render.mjs';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const APP_VERSION = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version;
@@ -328,15 +329,26 @@ export function mutate(root, command, payload = {}, jobId = '') {
 
 export function intake(root) {
   const state = load(root); const found = [];
+  function readDocx(source, file) {
+    if (path.extname(file).toLowerCase() !== '.docx' || source.status !== 'needs_extraction') return source;
+    try {
+      const {paragraphs} = processTemplate(file,'inspect');
+      const content = paragraphs.map(row => row.text).join('\n').trim();
+      if (content) return {...source, text:content.slice(0,200000), status:'extracted',
+        extraction_method:'Built-in DOCX paragraph reader',extracted_at:now()};
+    } catch { /* An unreadable upload stays queued for another file-based reader. */ }
+    return source;
+  }
   function walk(dir) { for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     if (entry.isSymbolicLink()) continue;
     const file = path.join(dir, entry.name); if (entry.isDirectory()) walk(file);
     else if (entry.isFile() && entry.name !== 'DROP-FILES-HERE.txt') {
       const rel = path.relative(root, file).split(path.sep).join('/'); const bytes = fs.readFileSync(file); const sha256 = crypto.createHash('sha256').update(bytes).digest('hex');
       const old = state.intake.find(x => x.path === rel && x.sha256 === sha256);
-      if (old) { found.push(old); continue; }
+      if (old) { found.push(readDocx(old,file)); continue; }
       const readable = ['.txt', '.md', '.csv', '.json'].includes(path.extname(file).toLowerCase());
-      found.push({ id: id('source'), path: rel, name: entry.name, bytes: bytes.length, sha256, indexed_at: now(), status: readable ? 'readable' : 'needs_extraction', text: readable ? bytes.toString('utf8').slice(0, 200000) : '' });
+      const source = { id: id('source'), path: rel, name: entry.name, bytes: bytes.length, sha256, indexed_at: now(), status: readable ? 'readable' : 'needs_extraction', text: readable ? bytes.toString('utf8').slice(0, 200000) : '' };
+      found.push(readDocx(source,file));
     }
   } }
   walk(inside(root, 'input'));
@@ -380,11 +392,23 @@ export function resume(root, jobId, payload) {
   const contact = [p.location, p.email, p.phone, p.website].filter(Boolean).join(' · ');
   const lines = [p.name, snapshot.headline, contact, '', snapshot.summary, '', 'EXPERIENCE', ...sections.flatMap(e => [`${e.title} | ${e.company}`, e.period, ...e.bullets.map(b => `• ${b.text}`), '']), ...(skills.length ? ['SKILLS', skills.join(' · '), ''] : []), ...(p.education.length ? ['EDUCATION', ...p.education.map(e => `${e.qualification} | ${e.institution} | ${e.date}`)] : [])];
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escapeHTML(p.name)} — Resume</title><style>body{margin:0;background:#eef0ec;color:#182620;font:11pt/1.5 Arial,sans-serif}.toolbar{padding:18px;text-align:center;font-size:14px}.toolbar button{background:#214c3d;color:white;border:0;border-radius:6px;padding:12px 20px;cursor:pointer}.page{background:white;max-width:760px;margin:0 auto 40px;padding:52px 60px;box-shadow:0 2px 20px #0001}h1{font-size:28pt;margin:0;letter-spacing:-1px}h2{font-size:11pt;letter-spacing:1px;border-bottom:1px solid #aab8ae;padding-bottom:6px;margin-top:25px}h3{font-size:11pt;margin:18px 0 0}.contact,.period{font-size:10pt;color:#49594e}.headline{font-size:13pt;margin:4px 0 10px}ul{padding-left:20px}li{margin:4px 0}section{break-inside:avoid}@page{size:letter;margin:0.65in}@media print{body{background:white}.toolbar{display:none}.page{padding:0;margin:0;box-shadow:none;max-width:none}a{color:inherit}}@media(max-width:600px){.page{padding:28px}}</style></head><body><div class="toolbar"><button onclick="window.print()">Print / save as PDF</button><p>Review this draft before submitting. In the print dialog, turn off browser headers and footers.</p></div><main class="page"><h1>${escapeHTML(p.name)}</h1><p class="headline">${escapeHTML(snapshot.headline)}</p><p class="contact">${escapeHTML(contact)}</p>${snapshot.summary ? `<p>${escapeHTML(snapshot.summary)}</p>` : ''}<h2>EXPERIENCE</h2>${sections.map(e => `<section><h3>${escapeHTML(e.title)} · ${escapeHTML(e.company)}</h3><div class="period">${escapeHTML(e.period)}</div><ul>${e.bullets.map(b => `<li>${escapeHTML(b.text)}</li>`).join('')}</ul></section>`).join('')}${skills.length ? `<h2>SKILLS</h2><p>${escapeHTML(skills.join(' · '))}</p>` : ''}${p.education.length ? `<h2>EDUCATION</h2>${p.education.map(e => `<p><strong>${escapeHTML(e.qualification)}</strong><br>${escapeHTML(e.institution)} · ${escapeHTML(e.date)}</p>`).join('')}` : ''}</main></body></html>`;
-  if (p.resume_template_path) required(payload.pdf_path, 'Render the resume using the saved template, then supply its pdf_path.');
-  const pdf = payload.pdf_path ? readPdf(path.resolve(payload.pdf_path)) : renderResumePdf(snapshot);
+  let rendered;
+  const requiredText = [p.name, ...sections.flatMap(section => section.bullets.map(bullet => bullet.text))];
+  if (payload.template_edits !== undefined) {
+    required(p.resume_template_path && path.extname(p.resume_template_path).toLowerCase() === '.docx', 'Select a saved DOCX template before supplying template_edits.');
+    required(Array.isArray(payload.template_edits) && payload.template_edits.length && !payload.docx_path && !payload.pdf_path,
+      'Supply template_edits for the original DOCX or supply finished files.');
+    rendered = processTemplate(inside(root,p.resume_template_path), 'render', payload.template_edits, requiredText);
+  } else if (p.resume_template_path && !payload.pdf_path) {
+    required(payload.docx_path, 'For a saved template, supply template_edits, a filled docx_path or a rendered pdf_path.');
+    const filled = path.resolve(payload.docx_path);
+    required(filled !== inside(root,p.resume_template_path), 'Fill a copy of the selected template and supply the copy.');
+    rendered = processTemplate(filled, 'render', [], requiredText);
+  }
+  const pdf = rendered?.pdf ?? (payload.pdf_path ? readPdf(path.resolve(payload.pdf_path)) : renderResumePdf(snapshot));
   const stem = resumeFilename(p, job.company).slice(0, -4);
   const files = [];
-  const word = payload.docx_path ? fs.readFileSync(path.resolve(payload.docx_path)) : renderResumeDocx(snapshot);
+  const word = rendered?.docx ?? (payload.docx_path ? fs.readFileSync(path.resolve(payload.docx_path)) : renderResumeDocx(snapshot));
   for (const [format, content] of [['pdf', pdf], ['docx', word], ['html', html], ['txt', lines.join('\n')], ['json', JSON.stringify(snapshot, null, 2)]]) {
     const rel = `applications/${job.id}/documents/${docId}/${stem}.${format}`; atomic(inside(root, rel), content); files.push({ path: rel, format });
   }

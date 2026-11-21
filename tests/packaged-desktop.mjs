@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {spawnSync} from 'node:child_process';
 import { _electron } from 'playwright-core';
+import { checkTemplateExport } from './template-check.mjs';
 
 // Run against both the delivered launcher and the Electron binary inside the package.
 const [launcher, executable] = process.argv.slice(2).map(p => path.resolve(p));
@@ -49,6 +50,7 @@ try {
   assert.equal(cli(['status']).jobs.find(j=>j.id===job.id).favorite,true);
   await desktop.close();
   desktop=null;
+  checkTemplateExport(cli,payload,root,job);
   fs.renameSync(path.dirname(root),path.join(tmp,'moved'));
   root=path.join(tmp,'moved','workspace');
   assert.equal(cli(['validate']).ok,true);

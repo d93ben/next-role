@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, atomic, dashboardState, inside, readJSON, renderDashboard } from '../scripts/lib.mjs';
 import { runCareer } from '../scripts/cli.mjs';
+import { offlinePage, prepareTemplateFiles, runTemplatePage } from '../scripts/template-render.mjs';
 import { saveDashboardAction } from '../scripts/dashboard-actions.mjs';
 import { dashboardOrigin, dashboardScope, portableParent, prepareWorkspace, resourcePath, scopeRoot } from './workspace.mjs';
 
@@ -171,11 +172,40 @@ function startupError(error) {
   app.exit(1);
 }
 
-app.on('window-all-closed',() => app.quit());
-if (args.includes('--cli')) {
+async function renderTemplateWorker(dir) {
+  const profile = path.join(dir, 'electron-profile');
+  fs.mkdirSync(profile, {recursive:true});
+  app.setPath('userData', profile);
+  if (!await prepareTemplateFiles(dir)) return;
+  await app.whenReady();
+  const local = session.fromPartition('template-render');
+  local.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
+  local.webRequest.onBeforeRequest({urls:['http://*/*','https://*/*','file://*/*']}, (_request, done) => done({cancel:true}));
+  const window = new BrowserWindow({show:false,webPreferences:{session:local,sandbox:true,contextIsolation:true,nodeIntegration:false,backgroundThrottling:false}});
+  window.webContents.setWindowOpenHandler(() => ({action:'deny'}));
+  window.webContents.on('will-navigate',event => event.preventDefault());
+  try {
+    await window.loadURL('data:text/html;charset=utf-8,'+encodeURIComponent(offlinePage));
+    await runTemplatePage(dir, script => window.webContents.executeJavaScript(script),
+      () => window.webContents.printToPDF({printBackground:true,preferCSSPageSize:true,displayHeaderFooter:false}));
+  } finally {
+    window.destroy();
+  }
+}
+
+if (args.includes('--template-worker')) {
+  const dir = option(args, '--template-worker');
+  // Keep the worker alive until files are flushed even when the hidden window closes.
+  app.on('window-all-closed', () => {});
+  renderTemplateWorker(dir).then(() => app.exit(0), error => {
+    fs.writeFileSync(path.join(dir,'error.txt'),error.message);
+    app.exit(1);
+  });
+} else if (args.includes('--cli')) {
   try { cli(); app.exit(0); }
   catch (error) { startupError(error); }
 } else {
+  app.on('window-all-closed',() => app.quit());
   // Electron emits ready after the ESM entry point finishes evaluating.
   app.whenReady().then(openDashboard).catch(startupError);
 }
