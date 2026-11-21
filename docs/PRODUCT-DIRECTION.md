@@ -18,8 +18,8 @@ The user's résumé template is a workspace-wide preference. The assistant reuse
 
 ## The dashboard shows saved work
 
-- The default entry point is `workspace/dashboard.html`, opened directly in a browser. Opening a prebuilt dashboard should work without a localhost server or a Node installation.
-- Keep search, filters, job details, match explanations, and résumé and document access in the dashboard. Handle file intake, favorites, notes, and other record changes through the assistant in chat. The draft dashboard upload field is outside the planned onboarding flow.
+- The HTML distribution opens `workspace/dashboard.html` directly in a browser. Opening a prebuilt dashboard should work without a localhost server or a Node installation.
+- Keep search, filters, job details, match explanations, and résumé and document access in the dashboard. Handle file intake and career workflows through the assistant in chat. Favorites and notes can also be saved directly in the desktop app. The draft dashboard upload field is outside the planned onboarding flow.
 - The workspace helpers regenerate the HTML after saving records. An already-open standalone tab needs a refresh. When the assistant can control that browser, it can reload the tab after the update.
 - Keep the existing helpers for local records, validation, and document generation. Those helpers currently need Node 20 or newer. Use an existing or portable runtime for agent setup when needed.
 

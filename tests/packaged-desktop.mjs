@@ -35,9 +35,9 @@ try {
   await page.locator('#saved-thoughts').getByText('Saved in the packaged app').waitFor();
   await page.locator('#brain-text').fill('Preserve this draft');
   cli(['brain-dump','add','--file',payload('agent',{text:'Saved by the chat agent'})]);
-  await page.locator('h1').click();
   await page.locator('#saved-thoughts').getByText('Saved by the chat agent').waitFor({timeout:20000});
   assert.equal(await page.locator('#brain-text').inputValue(),'Preserve this draft');
+  assert.equal(await page.locator('#brain-text').evaluate(el=>el===document.activeElement),true);
   assert.match(page.url(),/^nextrole:\/\/app\/workspace\/dashboard.html#profile$/);
   assert.equal(cli(['status']).jobs.find(j=>j.id===job.id).favorite,true);
   await desktop.close();

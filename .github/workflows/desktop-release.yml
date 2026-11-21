@@ -50,10 +50,12 @@ jobs:
           set -euo pipefail
           if [[ -z "$CSC_LINK" ]]; then
             unset CSC_LINK CSC_KEY_PASSWORD APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID
+            npx --no-install electron-builder --mac dir --universal --publish never
+          else
+            npm run desktop:mac
           fi
-          npm run desktop:mac
           bundle="release/desktop/mac-universal/Next Role.app"
-          lipo -verify_arch arm64 x86_64 "$bundle/Contents/MacOS/Next Role"
+          lipo "$bundle/Contents/MacOS/Next Role" -verify_arch arm64 x86_64
           mkdir deliverables
           if [[ -n "${CSC_LINK:-}" ]]; then
             codesign --verify --deep --strict "$bundle"
@@ -95,6 +97,10 @@ jobs:
           set -euo pipefail
           version=$(node -p "require('./package.json').version")
           tag="v$version"
+          if [[ "$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)" != "$GITHUB_SHA" ]]; then
+            echo "A newer main commit is available. This build will stay in Actions."
+            exit 0
+          fi
           cd deliverables
           sha256sum *.exe *.zip > SHA256SUMS.txt
           cat > "$RUNNER_TEMP/release-notes.md" <<'NOTES'

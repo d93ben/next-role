@@ -137,8 +137,19 @@ async function openDashboard() {
     }
     return {action:'deny'};
   });
-  ipcMain.handle('dashboard:version',event => version(senderScope(event)));
-  ipcMain.handle('dashboard:save',(event,payload) => saveDashboardAction(scopeRoot(root,senderScope(event)),payload));
+  ipcMain.handle('dashboard:refresh',(event,previous) => {
+    const scope = senderScope(event);
+    const folder = scopeRoot(root,scope);
+    if (fs.existsSync(path.join(folder,'.write.lock'))) return null;
+    const current = version(scope).built_at;
+    return current === previous ? null : dashboardState(folder,current);
+  });
+  ipcMain.handle('dashboard:save',(event,payload) => {
+    const folder = scopeRoot(root,senderScope(event));
+    if (readJSON(inside(folder,'workspace.json')).workspace_id !== payload.workspace_id)
+      throw new Error('The workspace changed. Open the current dashboard before saving.');
+    return saveDashboardAction(folder,payload);
+  });
   Menu.setApplicationMenu(Menu.buildFromTemplate([
     ...(process.platform==='darwin' ? [{role:'appMenu'}] : []),
     {label:'File',submenu:[

@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const data = window.NEXT_ROLE;
+  let data = window.NEXT_ROLE;
   const $ = selector => document.querySelector(selector);
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const labels = {saved:'Saved',queued:'Queued',preparing:'Preparing',ready:'Ready to apply',applied:'Applied',interview:'Interview',offer:'Offer',rejected:'Rejected',withdrawn:'Withdrawn'};
@@ -25,6 +25,9 @@
   const desktop = window.nextRoleDesktop;
   const local = Boolean(desktop) || (['127.0.0.1','localhost'].includes(location.hostname) && /^https?:$/.test(location.protocol));
   let token='', writable=false, mutationBusy=false, refreshing=false, errorMessage='', toastTimer;
+  let edits = 0, composing = false;
+  document.addEventListener('compositionstart',() => { composing = true; });
+  document.addEventListener('compositionend',() => { composing = false; });
   const storeKey=`next-role-ui-${data.meta.workspace_id}`;
   const draftKey=`next-role-note-${data.meta.workspace_id}`;
   let filters={search:'',status:'all',starred:false,sort:'updated'};
@@ -167,7 +170,8 @@
   function toast(message) {clearTimeout(toastTimer);$('#toast').textContent=message;$('#toast').classList.add('visible');toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),3500);}
   async function sendAction(payload) {
     if(!writable)throw new Error('Start the local app to save changes.');
-    if(desktop)return desktop.save(payload);
+    edits++;
+    if(desktop)return desktop.save({...payload, workspace_id:data.meta.workspace_id});
     const res=await fetch('/__next-role/action',{method:'POST',headers:{'Content-Type':'application/json','X-Next-Role-Token':token},body:JSON.stringify({workspace:scope,...payload})});
     const response=await res.json();if(!res.ok)throw new Error(response.error||'Could not save.');return response;
   }
@@ -213,18 +217,39 @@
   });
   async function connect() {
     if(!local)return;
-    if(desktop){writable=true;render();}
-    else try{const res=await fetch('/__next-role/session',{cache:'no-store'});if(!res.ok)return;const session=await res.json();token=session.token;writable=Boolean(token);render();}catch{}
+    if(desktop){
+      writable=true;render();
+      setInterval(async () => {
+        if (mutationBusy || refreshing || composing || window.nextRoleDocumentPreview.active) return;
+        refreshing=true;
+        const before = edits;
+        try {
+          const latest = await desktop.refresh(data.built_at);
+          if (!latest || latest.meta.workspace_id !== data.meta.workspace_id || before !== edits || mutationBusy || composing || window.nextRoleDocumentPreview.active) return;
+          const field = document.activeElement;
+          const id = field.id;
+          const range = typeof field.selectionStart === 'number' ? [field.selectionStart,field.selectionEnd,field.selectionDirection] : null;
+          const scroll = window.scrollY;
+          data = latest;
+          render();
+          const next = id && document.getElementById(id);
+          if (next) {
+            next.focus({preventScroll:true});
+            if (range) next.setSelectionRange(...range);
+          }
+          window.scrollTo(0,scroll);
+        } catch (error) { console.warn('Workspace refresh will retry:',error.message); }
+        finally { refreshing=false; }
+      },1500);
+      return;
+    }
+    try{const res=await fetch('/__next-role/session',{cache:'no-store'});if(!res.ok)return;const session=await res.json();token=session.token;writable=Boolean(token);render();}catch{}
     setInterval(async () => {
       if (mutationBusy || refreshing || window.nextRoleDocumentPreview.active || document.activeElement?.matches('input,textarea,select')) return;
       try {
-        let version;
-        if (desktop) version = await desktop.version();
-        else {
-          const res = await fetch(`/__next-role/version?workspace=${scope}`, {cache:'no-store'});
-          if (!res.ok) return;
-          version = await res.json();
-        }
+        const res = await fetch(`/__next-role/version?workspace=${scope}`, {cache:'no-store'});
+        if (!res.ok) return;
+        const version = await res.json();
         if (version.built_at && version.built_at !== data.built_at && !mutationBusy && !window.nextRoleDocumentPreview.active && !document.activeElement?.matches('input,textarea,select')) {
           refreshing = true;
           persistUI();

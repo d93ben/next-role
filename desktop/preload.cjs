@@ -3,7 +3,7 @@ if (process.isMainFrame && location.protocol === 'nextrole:' && location.host ==
     /^\/(workspace|demo)\/dashboard\.html$/.test(location.pathname)) {
   contextBridge.exposeInMainWorld('nextRoleDesktop', {
     save: payload => ipcRenderer.invoke('dashboard:save',payload),
-    version: () => ipcRenderer.invoke('dashboard:version')
+    refresh: builtAt => ipcRenderer.invoke('dashboard:refresh',builtAt)
   });
 }
 
