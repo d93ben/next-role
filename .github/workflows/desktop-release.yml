@@ -3,12 +3,12 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: [package.json, .github/workflows/desktop-release.yml]
+    paths: [package.json, 'desktop/**', tests/packaged-desktop.mjs, .github/workflows/desktop-release.yml]
 permissions:
   contents: read
 concurrency:
-  group: desktop-release-${{ github.sha }}
-  cancel-in-progress: false
+  group: desktop-release-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   package:

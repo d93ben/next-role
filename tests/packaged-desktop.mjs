@@ -27,6 +27,9 @@ try {
   const job = cli(['job','add','--file',payload('job',{company:'QA Example',title:'Temporary role',listing_text:'Fictional test'})]).result;
   desktop = await _electron.launch({executablePath:executable,args:['--workspace',root],timeout:90000});
   const page = await desktop.firstWindow();
+  page.setDefaultTimeout(25000);
+  page.on('pageerror',error => console.error('Dashboard error:',error.message));
+  page.on('console',msg => { if (['warning','error'].includes(msg.type())) console.error('Dashboard:',msg.text()); });
   await page.getByRole('button',{name:/^Star QA Example/}).click();
   await page.getByRole('button',{name:/^Unstar QA Example/}).waitFor();
   await page.locator('a[href="#profile"]').first().click();

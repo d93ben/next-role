@@ -55,7 +55,7 @@ async function openRoot(chosen, remember) {
   root = chosen;
 }
 
-async function cli() {
+function cli() {
   const argv = args.slice(args.indexOf('--cli')+1);
   const output = option(argv,'--output');
   if (output) argv.splice(argv.indexOf('--output'),2);
@@ -165,18 +165,18 @@ async function openDashboard() {
   await mainWindow.loadURL(dashboardOrigin+'/workspace/dashboard.html');
 }
 
-app.on('window-all-closed',() => app.quit());
-try {
-  if (args.includes('--cli')) {
-    await cli();
-    app.exit(0);
-  } else {
-    await app.whenReady();
-    await openDashboard();
-  }
-} catch (error) {
+function startupError(error) {
   if (args.includes('--cli')) console.error('Next Role: '+error.message);
   else dialog.showErrorBox('Could not open Next Role',error.message);
   app.exit(1);
+}
+
+app.on('window-all-closed',() => app.quit());
+if (args.includes('--cli')) {
+  try { cli(); app.exit(0); }
+  catch (error) { startupError(error); }
+} else {
+  // Electron emits ready after the ESM entry point finishes evaluating.
+  app.whenReady().then(openDashboard).catch(startupError);
 }
 
