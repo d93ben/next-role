@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { ROOT, atomic, build, init, inside, lock, readJSON } from '../scripts/lib.mjs';
-import { createDemo } from '../scripts/demo.mjs';
 
 export const dashboardOrigin = 'nextrole://app';
 const guideFiles = ['AGENTS.md', 'START-HERE.md', 'MEMORY.md', 'CLAUDE.md'];
@@ -51,18 +50,14 @@ export function prepareWorkspace(root) {
 }
 
 export function scopeRoot(root, scope) {
-  if (scope === 'workspace') return root;
-  if (scope !== 'demo') throw new Error('Unknown workspace.');
-  const demo = inside(path.dirname(root), 'demo');
-  if (!fs.existsSync(path.join(demo,'workspace.json'))) createDemo(demo);
-  if (readJSON(inside(demo,'workspace.json')).demo !== true) throw new Error('This folder is not the fictional demo.');
-  return demo;
+  if (scope !== 'workspace') throw new Error('Unknown workspace.');
+  return root;
 }
 
 export function dashboardScope(url) {
   const page = new URL(url);
   if (page.protocol !== 'nextrole:' || page.host !== 'app' || page.search) return null;
-  return /^\/(workspace|demo)\/dashboard\.html$/.exec(page.pathname)?.[1] || null;
+  return page.pathname === '/workspace/dashboard.html' ? 'workspace' : null;
 }
 
 export function resourcePath(root, url) {
@@ -71,7 +66,7 @@ export function resourcePath(root, url) {
   const segments = decodeURIComponent(page.pathname).slice(1).split('/');
   if (segments.some(s => !s || s.startsWith('.') || /[\\:\x00]/.test(s))) return null;
   const [scope, dir, ...rest] = segments;
-  if (!['workspace','demo'].includes(scope) || !['applications','input','templates'].includes(dir) || !rest.length) return null;
+  if (scope !== 'workspace' || !['applications','input','templates'].includes(dir) || !rest.length) return null;
   if (!/\.(pdf|docx|html|txt|md|json|csv|png|jpe?g)$/i.test(rest.at(-1))) return null;
   return inside(scopeRoot(root,scope), [dir,...rest].join('/'));
 }

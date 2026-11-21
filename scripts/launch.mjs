@@ -3,11 +3,9 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 import { ROOT, init, build, lock } from './lib.mjs';
-import { createDemo } from './demo.mjs';
 
 const workspace = path.join(ROOT, 'workspace');
 const dashboard = path.join(workspace, 'dashboard.html');
-const demo = path.join(ROOT, 'demo');
 
 try {
   if (!fs.existsSync(dashboard)) {
@@ -16,7 +14,6 @@ try {
       build(workspace);
     });
   }
-  if (!fs.existsSync(path.join(demo, 'dashboard.html'))) createDemo(demo);
   const url = pathToFileURL(dashboard).href;
   console.log(url);
   if (!process.argv.includes('--no-open')) {

@@ -2,6 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { ROOT, init, load, lock, mutate, resume, intake, extracted, build, validate, readJSON, verifiedListings } from './lib.mjs';
 
+function firstRunHandoff(state) {
+  if (state.meta.demo || state.profile.updated_at || state.profile.name || state.intake.length ||
+      state.experiences.length || state.answers.length || state.brain_dump.length || state.jobs.length ||
+      state.questions.length || state.memory.current_focus) return {};
+  return { onboarding_message: "Your personal dashboard is ready. Drag your résumé or LinkedIn export into this chat, or tell me about your most recent role. I'll use that to suggest a search profile." };
+}
+
 export function runCareer(args, defaultWorkspace = path.join(ROOT, 'workspace')) {
   const opts = {}; const words = [];
   for (let i = 0; i < args.length; i++) {
@@ -15,13 +22,16 @@ export function runCareer(args, defaultWorkspace = path.join(ROOT, 'workspace'))
   if (!command || ['help', '--help'].includes(command)) return help;
   let result;
   if (command === 'status') {
-    const s = load(root); result = { workspace: root, demo: s.meta.demo, profile: s.profile, memory: s.memory, index: path.join(root, 'INDEX.md'), pending_notes: s.brain_dump.filter(n => n.status !== 'processed'), jobs: s.jobs.map(j => ({ id: j.id, company: j.company, title: j.title, status: j.status, favorite: j.favorite, match_percent: j.fit_assessment?.percent ?? null, listing_verification: j.listing_verification ?? null, record: `applications/${j.id}/application.json`, next_action: j.next_action })), questions: s.questions.filter(q => q.status !== 'deferred' && !s.answers.some(a => a.question_id === q.id)), sources: s.intake.map(({ text, ...s }) => s), experience_count: s.experiences.length, answer_count: s.answers.length };
+    const s = load(root); result = { workspace: root, ...firstRunHandoff(s), demo: s.meta.demo, profile: s.profile, memory: s.memory, index: path.join(root, 'INDEX.md'), pending_notes: s.brain_dump.filter(n => n.status !== 'processed'), jobs: s.jobs.map(j => ({ id: j.id, company: j.company, title: j.title, status: j.status, favorite: j.favorite, match_percent: j.fit_assessment?.percent ?? null, listing_verification: j.listing_verification ?? null, record: `applications/${j.id}/application.json`, next_action: j.next_action })), questions: s.questions.filter(q => q.status !== 'deferred' && !s.answers.some(a => a.question_id === q.id)), sources: s.intake.map(({ text, ...s }) => s), experience_count: s.experiences.length, answer_count: s.answers.length };
   } else if (command === 'job shortlist') {
     result = verifiedListings(root, opts.since);
   } else if (command === 'validate') result = validate(root);
   else result = lock(root, () => {
     let data;
-    if (command === 'init') data = { workspace: root, initialized: Boolean(init(root)) };
+    if (command === 'init') {
+      const state = init(root);
+      data = { workspace: root, initialized: true, ...firstRunHandoff(state) };
+    }
     else if (command === 'build') return build(root);
     else if (command === 'intake') data = intake(root).map(({ text, ...s }) => s);
     else {

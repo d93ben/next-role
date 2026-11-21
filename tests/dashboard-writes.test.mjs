@@ -35,16 +35,22 @@ test('older workspaces gain optional files without changing job records or answe
   const root=temp(t);init(root);const j=job(root);const file=path.join(root,'applications',j.id,'application.json');const old=readJSON(file);delete old.favorite;fs.writeFileSync(file,JSON.stringify(old));fs.unlinkSync(path.join(root,'memory.json'));fs.unlinkSync(path.join(root,'profile','brain-dump.json'));const original=fs.readFileSync(file);
   build(root);assert.equal(load(root).jobs[0].favorite,false);assert.deepEqual(fs.readFileSync(file),original);assert.deepEqual(load(root).brain_dump,[]);assert.ok(fs.existsSync(path.join(root,'INDEX.md')));
 });
-test('local write API enforces origin/token/action boundaries and isolates demo data',async t=>{
-  const project=temp(t);for(const scope of ['workspace','demo'])init(path.join(project,scope),scope==='demo');const demo=path.join(project,'demo');const j=job(demo);build(demo);
+test('local write API enforces origin/token/action boundaries and accepts only the personal workspace',async t=>{
+  const project=temp(t);
+  const root=path.join(project,'workspace');
+  init(root);
+  const j=job(root);
+  build(root);
   const server=createAppServer(project);await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));t.after(()=>new Promise(resolve=>{server.closeAllConnections();server.close(resolve);}));const base=`http://127.0.0.1:${server.address().port}`;
   const session=await (await fetch(base+'/__next-role/session')).json();
   const send=(payload,headers={})=>fetch(base+'/__next-role/action',{method:'POST',headers:{'Content-Type':'application/json',Origin:base,'X-Next-Role-Token':session.token,...headers},body:JSON.stringify(payload)});
-  const star={workspace:'demo',action:'favorite',job_id:j.id,favorite:true};
+  const star={workspace:'workspace',action:'favorite',job_id:j.id,favorite:true};
   for(const headers of [{Origin:'https://unrelated.example'},{'X-Next-Role-Token':'wrong'},{'Content-Type':'text/plain'}])assert.equal((await send(star,headers)).status,403);
   assert.equal((await send({...star,workspace:'../outside'})).status,400);assert.equal((await send({...star,action:'job update'})).status,400);
-  assert.equal((await send(star)).status,200);assert.equal(load(demo).jobs[0].favorite,true);assert.equal(load(demo).jobs[0].status,'saved');assert.equal(load(path.join(project,'workspace')).jobs.length,0);
-  const note={workspace:'demo',action:'brain-dump',text:'My original note <script>example</script>',request_id:'api-retry'};assert.equal((await send(note)).status,200);assert.equal((await send(note)).status,200);assert.equal(load(demo).brain_dump.length,1);assert.equal(load(path.join(project,'workspace')).brain_dump.length,0);assert.equal(readJSON(path.join(demo,'index.json')).counts.pending_notes,1);
-  const html=await (await fetch(base+'/demo/dashboard.html')).text();assert.ok(!html.includes('My original note <script>'));assert.ok(html.includes('My original note \\u003cscript>'));
-  assert.equal((await fetch(base+'/demo/.backups/file')).status,403);assert.equal((await fetch(base+'/__next-role/version?workspace=unknown')).status,400);
+  assert.equal((await send({...star,workspace:'demo'})).status,400);
+  assert.equal((await send(star)).status,200);assert.equal(load(root).jobs[0].favorite,true);assert.equal(load(root).jobs[0].status,'saved');
+  const note={workspace:'workspace',action:'brain-dump',text:'My original note <script>example</script>',request_id:'api-retry'};assert.equal((await send(note)).status,200);assert.equal((await send(note)).status,200);assert.equal(load(root).brain_dump.length,1);assert.equal(readJSON(path.join(root,'index.json')).counts.pending_notes,1);
+  assert.equal((await fetch(base+'/demo/dashboard.html')).status,403);
+  const html=await (await fetch(base+'/workspace/dashboard.html')).text();assert.ok(!html.includes('My original note <script>'));assert.ok(html.includes('My original note \\u003cscript>'));
+  assert.equal((await fetch(base+'/workspace/.backups/file')).status,403);assert.equal((await fetch(base+'/__next-role/version?workspace=unknown')).status,400);
 });

@@ -15,7 +15,7 @@ For changes to onboarding, the dashboard, or distribution, read [Product directi
 
 | Information | Canonical destination | Helper command |
 | --- | --- | --- |
-| Original files | `workspace/input/` | `intake` |
+| Originals saved by the assistant from chat attachments | `workspace/input/` | `intake` |
 | Original conversation answers | `workspace/profile/answers.json` | `answer add` |
 | Freeform career notes | `workspace/profile/brain-dump.json` | `brain-dump add`, `brain-dump update` |
 | Missing information | `workspace/profile/questions.json` | `question add`, `question update` |

@@ -12,7 +12,7 @@ The assistant invites the user to drop career files into the chat. A résumé, L
 
 > Drag and drop your résumé, LinkedIn export, or work samples into this chat. If you have nothing handy, tell me about your most recent role and what you want to do next.
 
-When the host can access the original attachments and write local files, the assistant saves them under `workspace/input/` and indexes them with the existing intake helper. If the host cannot access the attachment, the assistant asks for pasted text or offers `workspace/input/` as the file-manager fallback. The assistant confirms which materials it actually saved and was able to review.
+When the host can access the original attachments and write local files, the assistant saves them under `workspace/input/` and indexes them with the existing intake helper. If the host cannot access the attachment, the assistant asks the user to paste the text in chat. The assistant confirms which materials it actually saved and was able to review.
 
 The user's résumé template is a workspace-wide preference. The assistant reuses it automatically for each role and revision. The first résumé delivery includes a template invitation only when the user has neither supplied a template nor received the invitation. Later uploads become the active template only when the user asks to switch.
 
@@ -25,7 +25,7 @@ The user's résumé template is a workspace-wide preference. The assistant reuse
 
 ## Distribution
 
-The preferred download is a GitHub Release ZIP with a clean, prebuilt personal dashboard and a separate fictional demo. A user should be able to extract it and open the dashboard with a double-click. A source checkout can have its dashboard built by the assistant during setup. Release packaging uses fresh records and demo data.
+Each distribution opens one personal dashboard. The HTML ZIP includes a prebuilt dashboard that opens with a double-click. For a source checkout, the assistant builds it during setup. Release packaging starts from an empty personal workspace.
 
 Offer portable Windows and Mac apps for users who want automatic refresh, favorites, and notes directly in the dashboard. Bundle the runtime and keep a movable workspace outside the executable or app bundle. Preserve the standalone HTML ZIP for browser viewing. Searches, file intake, and application preparation stay in chat.
 
@@ -43,5 +43,6 @@ Offer portable Windows and Mac apps for users who want automatic refresh, favori
 | 2026-11-19 | Made the final submission a user action for every application, including one-click forms and application emails. | Included in v1.3.1. |
 | 2026-11-19 | Made template reuse explicit across roles and sessions. A supplied template suppresses the invitation. Changing the saved template requires the user to choose a replacement. | Included in v1.3.2. |
 | 2026-11-20 | Added Windows portable and universal Mac desktop builds, direct favorites and career notes, automatic refresh, and a bundled agent CLI. A shared workspace can move between platforms. | v1.4.0 desktop build. Apple notarization requires publisher credentials. |
+| 2026-11-20 | A first-time user was told to copy files into a folder and was shown a second dashboard. First setup now opens one personal dashboard and asks for career materials in the same chat. The assistant files the attachments. | v1.4.1 |
 
 Append a dated row when a product decision changes or ships. Record the reason and distinguish agreed direction, local drafts, and released behavior.

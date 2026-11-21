@@ -1,6 +1,6 @@
 {
   "name": "next-role",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "private": true,
   "description": "A portable, agent-operated job search workspace with a local HTML dashboard.",
   "type": "module",
@@ -8,12 +8,11 @@
   "author": "Next Role contributors",
   "engines": { "node": ">=20" },
   "scripts": {
-    "setup": "node scripts/career.mjs init && node scripts/demo.mjs",
+    "setup": "node scripts/career.mjs init",
     "start": "node scripts/launch.mjs",
     "live": "node scripts/serve.mjs",
     "open": "node scripts/launch.mjs",
     "build": "node scripts/career.mjs build",
-    "demo": "node scripts/demo.mjs",
     "validate": "node scripts/career.mjs validate",
     "test": "node --test tests/*.test.mjs",
     "package": "node scripts/package.mjs",

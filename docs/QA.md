@@ -23,16 +23,16 @@ The Node test suite covers:
 - Escaped embedded dashboard data, absence of agent task controls, and refresh markers.
 - Workspace traversal rejection, writer locks, and backup creation.
 - CLI payload paths containing spaces.
-- Isolated, repeatable fictional demo generation.
+- Chat-first setup, including a single personal dashboard and a handoff that advances after intake.
 - ZIP content/CRC and Unicode filename handling.
 - Preview-path handling, including encoded traversal and private directories.
 - Favorites persisted across a fresh process without changing application status; repeated star writes are idempotent.
 - Career notes preserved as sources, retry deduplication, processed-experience links, and generated pending-note indexes.
 - Memory handoffs, resolved questions, and generated navigation remaining consistent.
 - Backward compatibility with schema 1 records missing favorites, brain-dump files, or memory.
-- HTTP writes requiring the correct origin, token, JSON content type, allowed workspace, and allowed action; demo writes leave personal records untouched.
+- HTTP writes requiring the correct origin, token, JSON content type, allowed workspace, and allowed action. Requests targeting the former demo route are rejected.
 
-Run `npm test` for the current result. `validate` separately checks the personal workspace and can check the demo with `--workspace demo`.
+Run `npm test` for the current result. `validate` separately checks the personal workspace.
 
 ## Browser checks
 
@@ -44,7 +44,7 @@ A 390px iframe was used for responsive inspection: the table scrolls within its 
 
 ## Release checks
 
-The package includes a clean personal workspace, a freshly generated fictional demo, source, workflows, memory instructions, and tests. Release verification checks the ZIP CRCs, confirms no personal profile/jobs, browser-test notes, server logs, or backups are included, extracts into a fresh location, and runs validation/tests there.
+The package includes one clean personal workspace, source, workflows, memory instructions, and tests. Release verification checks the ZIP CRCs, confirms no personal profile/jobs, browser-test notes, server logs, or backups are included, extracts into a fresh location, and runs validation/tests there.
 
 ## Scope of verification
 

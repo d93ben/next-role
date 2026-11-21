@@ -71,7 +71,6 @@ export function init(root, demo = false) {
     'profile/brain-dump.json': [], 'memory.json': { ...EMPTY_MEMORY }
   };
   for (const [rel, value] of Object.entries(initial)) if (!fs.existsSync(path.join(root, rel))) save(root, rel, value);
-  if (!fs.existsSync(path.join(root, 'input', 'DROP-FILES-HERE.txt'))) atomic(path.join(root, 'input', 'DROP-FILES-HERE.txt'), 'Add resumes, work notes, reviews, project descriptions, or portfolios here.\nThen ask your assistant to read START-HERE.md and help build your career profile.\nYou can also start without documents: ask your assistant to interview you.\n');
   return load(root);
 }
 export function load(root) {

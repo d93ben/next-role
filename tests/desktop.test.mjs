@@ -29,7 +29,10 @@ test('desktop and agent share records across a portable move', t => {
   prepareWorkspace(moved);
   assert.equal(load(moved).jobs[0].favorite,true);
   assert.equal(load(moved).brain_dump[0].text,'My note');
-  assert.equal(load(scopeRoot(moved,'demo')).meta.demo,true);
+  assert.throws(() => scopeRoot(moved,'demo'), /Unknown workspace/);
+  assert.equal(dashboardScope('nextrole://app/demo/dashboard.html'),null);
+  assert.equal(resourcePath(moved,'nextrole://app/demo/input/sample.pdf'),null);
+  assert.equal(fs.existsSync(path.join(dir,'second','demo')),false);
   assert.equal(load(moved).meta.demo,false);
   assert.match(renderDashboard(dashboardState(moved,'sample')),/My note/);
   assert.ok(fs.existsSync(path.join(dir,'second','workflows','application.md')));

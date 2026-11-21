@@ -7,7 +7,6 @@ import { saveDashboardAction } from './dashboard-actions.mjs';
 import { resolveRequest } from './server-paths.mjs';
 
 const types = { '.html':'text/html; charset=utf-8', '.txt':'text/plain; charset=utf-8', '.md':'text/plain; charset=utf-8', '.json':'application/json', '.pdf':'application/pdf', '.docx':'application/vnd.openxmlformats-officedocument.wordprocessingml.document' };
-const scopes = ['workspace', 'demo'];
 export function createAppServer(projectRoot) {
   const token = crypto.randomBytes(32).toString('hex');
   const instance = crypto.createHash('sha256').update(path.resolve(projectRoot)).digest('hex').slice(0,16);
@@ -22,7 +21,7 @@ export function createAppServer(projectRoot) {
         const chunks=[]; let size=0;
         for await (const chunk of req) { size+=chunk.length; if(size>256000) { reply(res,413,{error:'This note is too large. Please split it into smaller notes.'}); return; } chunks.push(chunk); }
         const p=JSON.parse(Buffer.concat(chunks).toString('utf8'));
-        if (!scopes.includes(p.workspace)) { reply(res,400,{error:'Unknown workspace.'}); return; }
+        if (p.workspace !== 'workspace') { reply(res,400,{error:'Unknown workspace.'}); return; }
         if (!['favorite','brain-dump'].includes(p.action)) { reply(res,400,{error:'Only favorites and personal notes can be saved here.'}); return; }
         const root=path.join(projectRoot,p.workspace);
         const value=saveDashboardAction(root,p);
@@ -33,7 +32,7 @@ export function createAppServer(projectRoot) {
     if (!['GET','HEAD'].includes(req.method)) { reply(res,405,{error:'Method not allowed.'}); return; }
     if (url.pathname === '/__next-role/session') { reply(res,200,{token,instance,version:APP_VERSION}); return; }
     if (url.pathname === '/__next-role/version') {
-      const scope=url.searchParams.get('workspace'); if(!scopes.includes(scope)) { reply(res,400,{error:'Unknown workspace.'}); return; }
+      const scope=url.searchParams.get('workspace'); if(scope !== 'workspace') { reply(res,400,{error:'Unknown workspace.'}); return; }
       const file=path.join(projectRoot,scope,'dashboard-version.json'); if(!fs.existsSync(file)){reply(res,404,{error:'Not built.'});return;}
       reply(res,200,JSON.parse(fs.readFileSync(file,'utf8'))); return;
     }
@@ -45,9 +44,6 @@ export function createAppServer(projectRoot) {
   });
 }
 export function prepareServerWorkspace(projectRoot) {
-  for (const scope of scopes) {
-    const root=path.join(projectRoot,scope);
-    if(scope==='demo' && !fs.existsSync(path.join(root,'workspace.json')))continue;
-    lock(root,()=>{init(root,scope==='demo');build(root);});
-  }
+  const root = path.join(projectRoot, 'workspace');
+  lock(root, () => { init(root); build(root); });
 }

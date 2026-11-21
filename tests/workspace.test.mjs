@@ -6,7 +6,7 @@ import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { inflateRawSync } from 'node:zlib';
 import { ROOT, init, load, lock, mutate, resume, intake, extracted, build, validate, inside, readJSON } from '../scripts/lib.mjs';
-import { createDemo } from '../scripts/demo.mjs';
+import { runCareer } from '../scripts/cli.mjs';
 import { packageApp, zipEntries, crc32 } from '../scripts/package.mjs';
 import { resolveRequest } from '../scripts/server-paths.mjs';
 
@@ -272,9 +272,20 @@ test('CLI mutation with spaces in its file path persists and rebuilds',t=>{
   const result=spawnSync(process.execPath,[path.join(ROOT,'scripts/career.mjs'),'profile','set','--file',payload,'--workspace',root],{encoding:'utf8'});
   assert.equal(result.status,0,result.stderr);assert.equal(load(root).profile.name,'A Person');assert.ok(fs.existsSync(JSON.parse(result.stdout).dashboard));
 });
-test('fictional demo is isolated and generation is repeatable without duplication',t=>{
-  const root=workspace(t);assert.throws(()=>createDemo(root),/personal workspace/);
-  const demo=path.join(root,'example');createDemo(demo);const before=load(demo);assert.equal(before.jobs.length,5);assert.equal(before.meta.demo,true);assert.equal(load(root).jobs.length,0);createDemo(demo);assert.equal(load(demo).jobs.length,5);assert.equal(validate(demo).ok,true);
+test('first setup invites chat attachments until career material has been saved', t => {
+  const root = path.join(workspace(t), 'new', 'workspace');
+  const command = (...args) => JSON.parse(runCareer(args, root));
+  const first = command('init');
+  assert.equal(first.dashboard, path.join(root, 'dashboard.html'));
+  assert.match(first.result.onboarding_message, /drag .* into this chat/i);
+  assert.match(first.result.onboarding_message, /tell me about your most recent role/i);
+  assert.equal(command('status').onboarding_message, first.result.onboarding_message);
+  assert.deepEqual(fs.readdirSync(path.join(root, 'input')), []);
+  fs.writeFileSync(path.join(root, 'input', 'resume.txt'), 'I coordinated projects.');
+  assert.equal(command('intake').result.length, 1);
+  assert.equal(command('init').result.onboarding_message, undefined);
+  assert.equal(command('status').onboarding_message, undefined);
+  assert.equal(command('status').sources[0].name, 'resume.txt');
 });
 test('release ZIP entries preserve content, Unicode paths, and CRC',()=>{
   const bytes=Buffer.from('Useful content ✓');const zip=zipEntries([{name:'next-role/notes/é.txt',bytes}]);assert.equal(zip.readUInt32LE(0),0x04034b50);const nameLen=zip.readUInt16LE(26);const size=zip.readUInt32LE(18);assert.equal(zip.subarray(30,30+nameLen).toString(),'next-role/notes/é.txt');assert.deepEqual(inflateRawSync(zip.subarray(30+nameLen,30+nameLen+size)),bytes);assert.equal(zip.readUInt32LE(14),crc32(bytes));assert.equal(zip.readUInt32LE(zip.length-22),0x06054b50);
@@ -294,15 +305,20 @@ test('release ZIP can be extracted and validated immediately, including an empty
     assert.equal(crc32(content),bytes.readUInt32LE(offset+14));assert.ok(!name.includes('/.backups/'));
     if(name.endsWith('/'))fs.mkdirSync(dest,{recursive:true});else{fs.mkdirSync(path.dirname(dest),{recursive:true});fs.writeFileSync(dest,content);}offset=start+size;
   }
-  const app=path.join(extracted,'next-role');const personal=path.join(app,'workspace');assert.equal(validate(personal).ok,true);assert.equal(load(personal).jobs.length,0);assert.equal(load(personal).profile.name,'');assert.deepEqual(load(personal).brain_dump,[]);assert.equal(validate(path.join(app,'demo')).ok,true);assert.ok(fs.existsSync(path.join(app,'MEMORY.md')));assert.ok(fs.existsSync(path.join(personal,'INDEX.md')));
+  const app=path.join(extracted,'next-role');const personal=path.join(app,'workspace');assert.equal(validate(personal).ok,true);assert.equal(load(personal).jobs.length,0);assert.equal(load(personal).profile.name,'');assert.deepEqual(load(personal).brain_dump,[]);assert.equal(fs.existsSync(path.join(app,'demo')),false);assert.ok(fs.existsSync(path.join(app,'MEMORY.md')));assert.ok(fs.existsSync(path.join(personal,'INDEX.md')));
   const dashboard = path.join(personal, 'dashboard.html');
+  const setup = spawnSync('npm run setup', {cwd: app, shell: true, encoding: 'utf8'});
+  assert.equal(setup.status, 0, setup.stderr);
+  assert.match(setup.stdout, /into this chat/i);
   const before = fs.readFileSync(dashboard, 'utf8');
+  assert.doesNotMatch(before, /Explore demo|\.\.\/demo\/dashboard\.html/);
   const launch = spawnSync(process.execPath, ['scripts/launch.mjs', '--no-open'], {
     cwd: app, encoding: 'utf8', env: { ...process.env, PORT: 'invalid' }
   });
   assert.equal(launch.status, 0, launch.stderr);
   assert.match(launch.stdout, /^file:\/\/\/.*\/workspace\/dashboard\.html\s*$/);
   assert.equal(fs.readFileSync(dashboard, 'utf8'), before);
+  assert.equal(fs.existsSync(path.join(app,'demo')), false);
   assert.ok(!before.includes('career-intake-template'));
   assert.ok(!fs.existsSync(path.join(personal, '.server.log')));
 });

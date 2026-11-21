@@ -60,7 +60,7 @@ Automatic backups are local and currently retained indefinitely. Include input f
 
 ## Distribution
 
-The release script uses an explicit allowlist of application source and documentation. It creates a new empty personal workspace and generates a new fictional demo inside a staging folder. It never copies the developer's personal workspace or credentials. The ZIP contains ready-to-view dashboards as well as source, instructions, and tests. Staging is under ignored release/.
+The release script uses an explicit allowlist of application source and documentation. It creates one empty personal workspace inside a staging folder. It never copies the developer's personal workspace or credentials. The ZIP contains a ready-to-view personal dashboard as well as source, instructions, and tests. Staging is under ignored release/.
 
 ## Intentional limits
 

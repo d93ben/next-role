@@ -33,11 +33,11 @@ Your assistant recommends roles and a starting search area from your materials a
 - Import existing PDF, DOCX, HTML, Markdown, or text application documents; archive the exact submitted resume and selected attachments.
 - An interview coach in your assistant chat that researches employer guides and candidate reports, builds answers from your experience, and runs one-question-at-a-time mock interviews with feedback. Try “Research questions for [role] at [company] and coach me through a mock interview.”
 - Correspondence records and unsent reply drafts, supplied through the assistant's email tools or pasted messages.
-- AGENTS.md operating rules, a MEMORY.md navigation guide, generated workspace indexes, a short session handoff, guided workflows, validation, backups, and a fictional demo.
+- AGENTS.md operating rules, a MEMORY.md navigation guide, generated workspace indexes, a short session handoff, guided workflows, validation, and backups.
 
 ## How the dashboard works
 
-The agent saves local records and regenerates the HTML after each update. Refresh an open tab to see the latest jobs, favorites, notes, and documents. Open `demo/dashboard.html` to explore the fictional example.
+The agent saves local records and regenerates the HTML after each update. Refresh an open tab to see the latest jobs, favorites, notes, and documents.
 
 After a job search, the assistant offers to check job-related email from the past three months or a date range you specify. Accept in chat to receive a summary of recruiter outreach, application updates, and deadlines.
 
@@ -53,7 +53,7 @@ This release verifies the local helper and dashboard workflow. It does not certi
 
 ## Your data
 
-`workspace/` is personal and excluded from Git. `demo/` contains fictional examples and is also excluded. The app makes no external network requests, stores no AI credentials, and does not send email or submit applications by itself. Your chosen assistant may send the material it reads to its own provider; local file storage is not a promise of offline AI processing.
+`workspace/` is personal and excluded from Git. The app makes no external network requests, stores no AI credentials, and does not send email or submit applications by itself. Your chosen assistant may send the material it reads to its own provider; local file storage is not a promise of offline AI processing.
 
 Back up the entire workspace folder, including application documents and input files. Updating app code must preserve this folder. Automatic file backups are in `workspace/.backups`; see `docs/ARCHITECTURE.md` for recovery.
 

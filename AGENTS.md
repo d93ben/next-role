@@ -11,6 +11,8 @@ This project is an agent-operated job-search workspace. The user talks to you; t
 
 In a desktop distribution, use the app's `--cli` entry point for every workspace command, including the initial status check. See `START-HERE.md` for Windows and Mac examples. Use the user's workspace with `--workspace`. The desktop app provides its own runtime. In a source or HTML distribution, if a command starts with `node` and the host lacks Node.js 20 or newer, substitute `scripts\run-node.cmd` on Windows or `sh scripts/run-node.sh` on macOS/Linux. Run the command from the project root.
 
+For a first setup, show the user's personal dashboard and use the `onboarding_message` from `init` or `status` when the chat has no career materials yet. Invite them to drag their résumé or LinkedIn export directly into this chat, or describe a recent role. If they already attached a file or described their work, process it and give them the next relevant step. The assistant handles local filing and indexing. Leave folder paths for technical questions.
+
 ## Hand the conversation back clearly
 
 - After a meaningful step, tell the user what you completed and where to find the result if there is a file or dashboard view to review. Continue through any remaining work the user already requested and authorized.
@@ -19,7 +21,7 @@ In a desktop distribution, use the app's `--cli` entry point for every workspace
 
 ## Durable records
 
-- Canonical data lives under `workspace/`. `demo/` is a separate fictional example; never use it as the user's experience.
+- Canonical data lives under `workspace/`. Use the user's own evidence for career claims.
 - Use `node scripts/career.mjs … --file <payload.json>` for mutations. Payload files containing personal information belong under `workspace/`, never in tracked templates. See `docs/COMMANDS.md` and `templates/`.
 - Helpers validate and regenerate `workspace/INDEX.md`, `workspace/index.json`, and `workspace/dashboard.html`. The desktop dashboard shows saved changes automatically and lets users save favorites and career notes. These actions also work through chat. Use chat for intake, status updates, and job searches. A directly opened HTML dashboard needs a browser refresh after changes.
 - For onboarding, invite the user to attach career files to the conversation. Follow `workflows/onboarding.md` to save accessible originals and index them.
@@ -51,6 +53,6 @@ In a desktop distribution, use the app's `--cli` entry point for every workspace
 ## Privacy and development
 
 - Personal inputs, generated dashboards, documents, backups, and conversations stay in ignored `workspace/`. A locally stored file may still be processed by the user's chosen AI provider when read by its assistant. Do not claim this is offline AI.
-- Do not upload personal workspaces to GitHub or publish personal dashboards without the user's request. The release packager creates a clean workspace and fictional demo; it never packages the current user's workspace.
+- Do not upload personal workspaces to GitHub or publish personal dashboards without the user's request. The release packager creates one clean personal workspace; it never packages the current user's workspace.
 - Node.js 20+ runs the helpers and local server. The launcher can download a checksum-verified runtime into the project on first use. Static dashboards work from disk.
 - Keep schema version compatibility. Run `npm test`, `npm run validate`, and rebuild after source changes. Use the local browser preview for UI changes. Do not add external fonts, analytics, or remote scripts.

@@ -2,7 +2,7 @@
 
 For the desktop distribution, replace `node scripts/career.mjs` with the app executable followed by `--cli`. Supply `--workspace PATH` to select the same records used by the dashboard. `START-HERE.md` has the platform-specific paths and Windows output option.
 
-Run commands from the project root. `workspace/` is the default data directory. Use `--workspace PATH` to select another directory. Keep demo operations in the demo workspace.
+Run commands from the project root. `workspace/` is the default data directory. Use `--workspace PATH` to select another directory. On an empty workspace, `init` and `status` return the first-run chat invitation.
 
 If Node.js 20 or newer is unavailable, replace `node` in the examples with `scripts\run-node.cmd` on Windows or `sh scripts/run-node.sh` on macOS and Linux. The wrapper checks for a project-local runtime, then a compatible system Node, then downloads the pinned runtime if required. The first download uses the official Node.js distribution and the checksums in `scripts/node-runtime.txt`.
 
